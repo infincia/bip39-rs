@@ -4,6 +4,7 @@ use std;
 #[derive(Debug)]
 pub enum Bip39Error {
     InvalidChecksum,
+    InvalidWord,
     InvalidKeysize,
     InvalidWordLength,
     EntropyUnavailable,

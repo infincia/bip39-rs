@@ -152,7 +152,10 @@ impl Bip39 {
         let mut to_validate: BitVec = BitVec::new();
 
         for word in mnemonic.split(" ").into_iter() {
-            let n = word_map.get(word).unwrap();
+            let n = match word_map.get(word) {
+                Some(n) => n,
+                None => return Err(Bip39Error::InvalidWord)
+            };
             for i in 0..11 {
                 let bit = Bip39::bit_from_u16_as_u11(*n, i);
                 to_validate.push(bit);
