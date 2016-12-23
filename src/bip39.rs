@@ -60,7 +60,7 @@ impl Bip39 {
     /// let seed = &bip39.seed;
     /// println!("phrase: {}", phrase);
     /// ```
-    pub fn new(key_type: &KeyType, lang: Language, password: &str) -> Result<Bip39, Bip39Error> {
+    pub fn new<S>(key_type: &KeyType, lang: Language, password: S) -> Result<Bip39, Bip39Error>  where S: Into<String> {
         let entropy_bits = key_type.entropy_bits();
 
         let num_words = key_type.word_length();
@@ -93,7 +93,7 @@ impl Bip39 {
 
         let mnemonic = words.join(" ");
 
-        Bip39::from_mnemonic(mnemonic, lang, password.to_string())
+        Bip39::from_mnemonic(mnemonic, lang, password.into())
     }
 
     /// Create a `Bip39` struct from an existing mnemonic phrase
@@ -108,14 +108,16 @@ impl Bip39 {
     ///
     /// let test_mnemonic = "park remain person kitchen mule spell knee armed position rail grid ankle";
     ///
-    /// let b = Bip39::from_mnemonic(test_mnemonic.to_string(), Language::English, "".to_string()).unwrap();
+    /// let b = Bip39::from_mnemonic(test_mnemonic, Language::English, "").unwrap();
     /// ```
     ///
 
-    pub fn from_mnemonic(mnemonic: String, lang: Language, password: String) -> Result<Bip39, Bip39Error> {
-        try!(Bip39::validate(&mnemonic, &lang));
+    pub fn from_mnemonic<S>(mnemonic: S, lang: Language, password: S) -> Result<Bip39, Bip39Error> where S: Into<String> {
+        let m = mnemonic.into();
+        let p = password.into();
+        try!(Bip39::validate(&*m, &lang));
 
-        Ok(Bip39 { mnemonic: mnemonic.clone(), seed: Bip39::generate_seed(&mnemonic.as_bytes(), &password), lang: lang})
+        Ok(Bip39 { mnemonic: (&m).clone(), seed: Bip39::generate_seed(&m.as_bytes(), &p), lang: lang})
     }
 
     /// Validate a mnemonic phrase
@@ -136,8 +138,10 @@ impl Bip39 {
     /// }
     /// ```
     ///
-    pub fn validate(mnemonic: &str, lang: &Language) -> Result<(), Bip39Error> {
-        let key_type = try!(KeyType::for_mnemonic(&mnemonic));
+    pub fn validate<S>(mnemonic: S, lang: &Language) -> Result<(), Bip39Error>  where S: Into<String> {
+        let m = mnemonic.into();
+
+        let key_type = try!(KeyType::for_mnemonic(&*m));
         let entropy_bits = key_type.entropy_bits();
         let checksum_bits = key_type.checksum_bits();
 
@@ -150,7 +154,7 @@ impl Bip39 {
 
         let mut to_validate: BitVec = BitVec::new();
 
-        for word in mnemonic.split(" ").into_iter() {
+        for word in m.split(" ").into_iter() {
             let n = match word_map.get(word) {
                 Some(n) => n,
                 None => return Err(Bip39Error::InvalidWord)

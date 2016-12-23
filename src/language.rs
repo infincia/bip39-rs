@@ -18,8 +18,10 @@ impl Language {
     /// let lang = Language::for_locale("en_US.UTF-8").unwrap();
     ///
     /// ```
-    pub fn for_locale(locale: &str) -> Result<Language, Bip39Error> {
-        let lang = match locale {
+    pub fn for_locale<S>(locale: S) -> Result<Language, Bip39Error> where S: Into<String>  {
+        let l = locale.into();
+
+        let lang = match &*l {
             "en_US.UTF-8" => Language::English,
             "en_GB.UTF-8" => Language::English,
 

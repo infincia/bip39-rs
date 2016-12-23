@@ -74,12 +74,14 @@ impl KeyType {
     ///
     /// let test_mnemonic = "park remain person kitchen mule spell knee armed position rail grid ankle";
     ///
-    /// let key_type = KeyType::for_mnemonic(&test_mnemonic).unwrap();
+    /// let key_type = KeyType::for_mnemonic(test_mnemonic).unwrap();
     ///
     /// let entropy_bits = key_type.entropy_bits();
     /// ```
-    pub fn for_mnemonic(mnemonic: &str) -> Result<KeyType, Bip39Error> {
-        let v: Vec<&str> = mnemonic.split(" ").into_iter().collect();
+    pub fn for_mnemonic<S>(mnemonic: S) -> Result<KeyType, Bip39Error> where S: Into<String> {
+        let m = mnemonic.into();
+
+        let v: Vec<&str> = m.split(" ").into_iter().collect();
 
         let kt = match v.len() {
             12 => KeyType::Key128,
@@ -102,7 +104,7 @@ impl KeyType {
     ///
     /// let test_mnemonic = "park remain person kitchen mule spell knee armed position rail grid ankle";
     ///
-    /// let key_type = KeyType::for_mnemonic(&test_mnemonic).unwrap();
+    /// let key_type = KeyType::for_mnemonic(test_mnemonic).unwrap();
     ///
     /// let total_bits = key_type.total_bits();
     /// ```
@@ -127,7 +129,7 @@ impl KeyType {
     ///
     /// let test_mnemonic = "park remain person kitchen mule spell knee armed position rail grid ankle";
     ///
-    /// let key_type = KeyType::for_mnemonic(&test_mnemonic).unwrap();
+    /// let key_type = KeyType::for_mnemonic(test_mnemonic).unwrap();
     ///
     /// let entropy_bits = key_type.entropy_bits();
     /// ```
@@ -152,7 +154,7 @@ impl KeyType {
     ///
     /// let test_mnemonic = "park remain person kitchen mule spell knee armed position rail grid ankle";
     ///
-    /// let key_type = KeyType::for_mnemonic(&test_mnemonic).unwrap();
+    /// let key_type = KeyType::for_mnemonic(test_mnemonic).unwrap();
     ///
     /// let checksum_bits = key_type.checksum_bits();
     /// ```
