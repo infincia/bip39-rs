@@ -53,3 +53,14 @@ fn validate_24_english() {
         Err(_) => { assert!(false); return }
     };
 }
+
+
+#[test]
+fn validate_12_english_uppercase() {
+    let invalid_mnemonic = "Park remain person kitchen mule spell knee armed position rail grid ankle";
+
+    let _ = match Bip39::from_mnemonic(invalid_mnemonic.to_string(), Language::English, "".to_string()) {
+        Ok(b) => { assert!(false); return },
+        Err(_) => {},
+    };
+}
