@@ -41,7 +41,7 @@ impl Bip39 {
     /// Generates a new `Bip39` struct
     ///
     /// When returned, the struct will be filled in with the phrase and the seed value
-    /// as 64byte/512bit hex
+    /// as 64 bytes raw
     ///
     ///
     /// # Example
