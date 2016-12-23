@@ -62,7 +62,6 @@ impl Bip39 {
     /// ```
     pub fn new(key_type: &KeyType, lang: Language, password: &str) -> Result<Bip39, Bip39Error> {
         let entropy_bits = key_type.entropy_bits();
-        let total_bits = key_type.total_bits();
 
         let num_words = key_type.word_length();
 
