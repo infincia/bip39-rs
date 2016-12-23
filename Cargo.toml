@@ -7,6 +7,9 @@ license = "MIT/Apache-2.0"
 homepage = "https://github.com/infincia/bip39-rs/"
 repository = "https://github.com/infincia/bip39-rs/"
 readme = "README.md"
+description = "A Rust implementation of BIP-0039"
+documentation = "https://docs.rs/bip39"
+keywords = ["bip39", "bitcoin", "mnemonic", "recovery phrase", "recovery key"]
 
 [[bin]]
 name = "bip39"
