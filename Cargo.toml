@@ -1,0 +1,25 @@
+[package]
+
+name = "bip39"
+version = "0.1.0"
+authors = [ "Stephen Oliver <steve@infincia.com>" ]
+license = "MIT/Apache-2.0"
+homepage = "https://github.com/infincia/bip39-rs/"
+repository = "https://github.com/infincia/bip39-rs/"
+readme = "README.md"
+
+[[bin]]
+name = "bip39"
+
+[lib]
+name = "bip39"
+path = "src/lib.rs"
+
+
+[dependencies]
+rustc-serialize = "^0.3.19"
+bitreader = "^0.1.0"
+bit-vec = "^0.4.3"
+
+rust-crypto = "^0.2.36"
+rand = "^0.3.14"
