@@ -10,6 +10,7 @@ readme = "README.md"
 
 [[bin]]
 name = "bip39"
+doc = false
 
 [lib]
 name = "bip39"
