@@ -133,7 +133,7 @@ impl Bip39 {
     /// let test_mnemonic = "park remain person kitchen mule spell knee armed position rail grid ankle";
     ///
     /// match Bip39::validate(test_mnemonic, &Language::English) {
-    ///  Ok(_) => {},
+    ///  Ok(_) => { println!("valid: {}", test_mnemonic); },
     ///  Err(e) => {}
     /// }
     /// ```
