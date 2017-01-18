@@ -52,8 +52,8 @@ impl Bip39 {
     /// let kt = KeyType::for_word_length(12).unwrap();
     ///
     /// let bip39 = match Bip39::new(&kt, Language::English, "") {
-    /// Ok(b) => b,
-    /// Err(e) => { println!("e: {:?}", e); return }
+    ///     Ok(b) => b,
+    ///     Err(e) => { println!("e: {}", e); return }
     /// };
     ///
     /// let phrase = &bip39.mnemonic;
@@ -133,8 +133,8 @@ impl Bip39 {
     /// let test_mnemonic = "park remain person kitchen mule spell knee armed position rail grid ankle";
     ///
     /// match Bip39::validate(test_mnemonic, &Language::English) {
-    ///  Ok(_) => { println!("valid: {}", test_mnemonic); },
-    ///  Err(e) => {}
+    ///     Ok(_) => { println!("valid: {}", test_mnemonic); },
+    ///     Err(e) => { println!("e: {}", e); return }
     /// }
     /// ```
     ///
