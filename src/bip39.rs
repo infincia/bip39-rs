@@ -1,10 +1,8 @@
 use std::collections::hash_map::HashMap;
 
-extern crate bitreader;
-use self::bitreader::BitReader;
+use bitreader::BitReader;
+use bit_vec::BitVec;
 
-extern crate bit_vec;
-use self::bit_vec::BitVec;
 
 use data_encoding::hex;
 

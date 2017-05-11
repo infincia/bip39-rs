@@ -1,4 +1,6 @@
 extern crate data_encoding;
+extern crate bitreader;
+extern crate bit_vec;
 extern crate ring;
 
 pub mod bip39;
