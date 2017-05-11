@@ -1,3 +1,5 @@
+extern crate ring;
+
 pub mod bip39;
 pub mod error;
 pub mod keytype;

@@ -1,8 +1,5 @@
-extern crate crypto;
-use self::crypto::hmac::Hmac;
-use self::crypto::digest::Digest;
-use self::crypto::sha2::{Sha256, Sha512};
-use self::crypto::pbkdf2::pbkdf2 as rcrypto_pbkdf2;
+use ring::digest::{SHA256, digest};
+use ring::pbkdf2;
 
 extern crate rand;
 use self::rand::{OsRng, Rng};
@@ -13,11 +10,10 @@ static PBKDF2_ROUNDS: u32 = 2048;
 static PBKDF2_BYTES: usize = 64;
 
 
-pub fn sha256(input: &[u8]) -> String {
-    let mut hash = Sha256::new();
-    hash.input(input);
+pub fn sha256(input: &[u8]) -> Vec<u8> {
+    let hash = digest(&SHA256, input);
 
-    hash.result_str()
+    hash.as_ref().to_vec()
 }
 
 pub fn gen_random_bytes(byte_length: usize) -> Result<Vec<u8>, Bip39Error> {
@@ -28,9 +24,10 @@ pub fn gen_random_bytes(byte_length: usize) -> Result<Vec<u8>, Bip39Error> {
 }
 
 pub fn pbkdf2(input: &[u8], salt: String) -> Vec<u8> {
-    let mut hmac = Hmac::new(Sha512::new(), input);
     let mut seed = vec![0u8; PBKDF2_BYTES];
-    rcrypto_pbkdf2(&mut hmac, salt.as_bytes(), PBKDF2_ROUNDS, &mut seed);
+    static PBKDF2_PRF: &'static pbkdf2::PRF = &pbkdf2::HMAC_SHA512;
+
+    pbkdf2::derive(PBKDF2_PRF, PBKDF2_ROUNDS, salt.as_bytes(), input, &mut seed);
 
     seed
 }

@@ -20,6 +20,5 @@ path = "src/lib.rs"
 rustc-serialize = "^0.3.19"
 bitreader = "^0.1.0"
 bit-vec = "^0.4.3"
-
-rust-crypto = "^0.2.36"
+ring = "^0.9"
 rand = "^0.3.14"

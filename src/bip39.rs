@@ -69,7 +69,8 @@ impl Bip39 {
 
         let entropy = try!(gen_random_bytes(entropy_bits / 8));
 
-        let entropy_hash = sha256(entropy.as_ref()).from_hex().unwrap();
+
+        let entropy_hash = sha256(entropy.as_ref());
 
         // we put both the entropy and the hash of the entropy (in that order) into a single vec
         // and then just read 11 bits at a time out of the entire thing `num_words` times. We
@@ -173,7 +174,7 @@ impl Bip39 {
         &entropy_to_validate.extend((&to_validate).into_iter().take(entropy_bits));
         assert!(entropy_to_validate.len() == entropy_bits, "invalid entropy size");
 
-        let hash = sha256(entropy_to_validate.to_bytes().as_ref()).from_hex().unwrap();
+        let hash = sha256(entropy_to_validate.to_bytes().as_ref());
 
         let entropy_hash_to_validate_bits = BitVec::from_bytes(hash.as_ref());
 
