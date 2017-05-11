@@ -11,10 +11,6 @@ description = "A Rust implementation of BIP-0039"
 documentation = "https://docs.rs/bip39"
 keywords = ["bip39", "bitcoin", "mnemonic"]
 
-[[bin]]
-name = "bip39"
-doc = false
-
 [lib]
 name = "bip39"
 path = "src/lib.rs"
