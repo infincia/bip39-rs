@@ -17,7 +17,6 @@ path = "src/lib.rs"
 
 
 [dependencies]
-rustc-serialize = "^0.3.19"
 bitreader = "^0.1.0"
 bit-vec = "^0.4.3"
 ring = "^0.9"

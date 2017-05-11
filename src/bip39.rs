@@ -1,14 +1,12 @@
 use std::collections::hash_map::HashMap;
 
-extern crate rustc_serialize;
-use self::rustc_serialize::hex::{FromHex, ToHex};
-
 extern crate bitreader;
 use self::bitreader::BitReader;
 
 extern crate bit_vec;
 use self::bit_vec::BitVec;
 
+use data_encoding::hex;
 
 
 static BIP39_WORDLIST_ENGLISH: &'static str = include_str!("bip39_english.txt");
@@ -25,15 +23,6 @@ pub struct Bip39 {
     pub mnemonic: String,
     pub seed: Vec<u8>,
     pub lang: Language
-}
-
-impl ToHex for Bip39 {
-    fn to_hex(&self) -> String {
-        let seed: &[u8] = self.seed.as_ref();
-        let hex = seed.to_hex();
-
-        hex
-    }
 }
 
 impl Bip39 {
@@ -187,6 +176,13 @@ impl Bip39 {
         }
 
         Ok(())
+    }
+
+    pub fn to_hex(&self) -> String {
+        let seed: &[u8] = self.seed.as_ref();
+        let hex = hex::encode(seed);
+
+        hex
     }
 
 
