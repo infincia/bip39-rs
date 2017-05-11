@@ -1,3 +1,4 @@
+extern crate data_encoding;
 extern crate ring;
 
 pub mod bip39;
