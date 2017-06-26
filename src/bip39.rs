@@ -25,7 +25,7 @@ pub struct Bip39 {
 
 impl Bip39 {
 
-    /// Generates a new `Bip39` struct
+    /// Create a new `Bip39` struct from a random key
     ///
     /// When returned, the struct will be filled in with the phrase and the seed value
     /// as 64 bytes raw
@@ -49,27 +49,32 @@ impl Bip39 {
     /// ```
     pub fn new<S>(key_type: &KeyType, lang: Language, password: S) -> Result<Bip39, Bip39Error>  where S: Into<String> {
         let entropy_bits = key_type.entropy_bits();
+        let entropy = gen_random_bytes(entropy_bits / 8)?;
+
+        Bip39::from_key(&entropy, key_type, lang, password)
+
+    }
+
+    /// Create a new `Bip39` struct from an existing key
+    pub fn from_key<S>(bytes : &[u8], key_type: &KeyType, lang: Language, password: S) -> Result<Bip39, Bip39Error>  where S: Into<String> {
 
         let num_words = key_type.word_length();
 
         let word_list = Bip39::get_wordlist(&lang);
 
-        let entropy = try!(gen_random_bytes(entropy_bits / 8));
+        let bytes_hash = sha256(bytes.as_ref());
 
-
-        let entropy_hash = sha256(entropy.as_ref());
-
-        // we put both the entropy and the hash of the entropy (in that order) into a single vec
+        // we put both the bytes and the hash of the bytes (in that order) into a single vec
         // and then just read 11 bits at a time out of the entire thing `num_words` times. We
         // can do that because:
         //
         // 12 words * 11bits = 132bits
         // 15 words * 11bits = 165bits
         //
-        // ... and so on. It grabs the entropy and then the right number of hash bits and no more.
+        // ... and so on. It grabs the bytes and then the right number of hash bits and no more.
 
-        let mut combined = Vec::from(entropy);
-        combined.extend(&entropy_hash);
+        let mut combined = Vec::from(bytes);
+        combined.extend(&bytes_hash);
 
         let mut reader = BitReader::new(combined.as_ref());
 
