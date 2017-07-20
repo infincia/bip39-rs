@@ -1,4 +1,4 @@
-use ::error::Bip39Error;
+use ::error::{Error, ErrorKind};
 
 
 #[derive(Debug)]
@@ -18,14 +18,14 @@ impl Language {
     /// let lang = Language::for_locale("en_US.UTF-8").unwrap();
     ///
     /// ```
-    pub fn for_locale<S>(locale: S) -> Result<Language, Bip39Error> where S: Into<String>  {
+    pub fn for_locale<S>(locale: S) -> Result<Language, Error> where S: Into<String>  {
         let l = locale.into();
 
         let lang = match &*l {
             "en_US.UTF-8" => Language::English,
             "en_GB.UTF-8" => Language::English,
 
-            _ => { return Err(Bip39Error::LanguageUnavailable) }
+            _ => { return Err(ErrorKind::LanguageUnavailable.into()) }
         };
 
         Ok(lang)

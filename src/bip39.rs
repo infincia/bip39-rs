@@ -11,7 +11,7 @@ static BIP39_WORDLIST_ENGLISH: &'static str = include_str!("bip39_english.txt");
 
 
 use ::crypto::{gen_random_bytes, sha256, pbkdf2};
-use ::error::Bip39Error;
+use ::error::{Error, ErrorKind};
 use ::keytype::KeyType;
 use ::language::Language;
 
@@ -47,7 +47,7 @@ impl Bip39 {
     /// let seed = &bip39.seed;
     /// println!("phrase: {}", phrase);
     /// ```
-    pub fn new<S>(key_type: &KeyType, lang: Language, password: S) -> Result<Bip39, Bip39Error>  where S: Into<String> {
+    pub fn new<S>(key_type: &KeyType, lang: Language, password: S) -> Result<Bip39, Error>  where S: Into<String> {
         let entropy_bits = key_type.entropy_bits();
 
         let num_words = key_type.word_length();
@@ -100,7 +100,7 @@ impl Bip39 {
     /// ```
     ///
 
-    pub fn from_mnemonic<S>(mnemonic: S, lang: Language, password: S) -> Result<Bip39, Bip39Error> where S: Into<String> {
+    pub fn from_mnemonic<S>(mnemonic: S, lang: Language, password: S) -> Result<Bip39, Error> where S: Into<String> {
         let m = mnemonic.into();
         let p = password.into();
         try!(Bip39::validate(&*m, &lang));
@@ -126,7 +126,7 @@ impl Bip39 {
     /// }
     /// ```
     ///
-    pub fn validate<S>(mnemonic: S, lang: &Language) -> Result<(), Bip39Error>  where S: Into<String> {
+    pub fn validate<S>(mnemonic: S, lang: &Language) -> Result<(), Error>  where S: Into<String> {
         let m = mnemonic.into();
 
         let key_type = try!(KeyType::for_mnemonic(&*m));
@@ -145,7 +145,7 @@ impl Bip39 {
         for word in m.split(" ").into_iter() {
             let n = match word_map.get(word) {
                 Some(n) => n,
-                None => return Err(Bip39Error::InvalidWord)
+                None => return Err(ErrorKind::InvalidWord.into())
             };
             for i in 0..11 {
                 let bit = Bip39::bit_from_u16_as_u11(*n, i);
@@ -170,7 +170,7 @@ impl Bip39 {
         &new_checksum.extend(entropy_hash_to_validate_bits.into_iter().take(checksum_bits));
         assert!(new_checksum.len() == checksum_bits, "invalid new checksum size");
         if !(new_checksum == checksum_to_validate) {
-            return Err(Bip39Error::InvalidChecksum)
+            return Err(ErrorKind::InvalidChecksum.into())
         }
 
         Ok(())

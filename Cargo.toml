@@ -17,6 +17,7 @@ path = "src/lib.rs"
 
 
 [dependencies]
+error-chain ="^0.10.0"
 bitreader = "^0.1.0"
 bit-vec = "^0.4.3"
 ring = "^0.11"

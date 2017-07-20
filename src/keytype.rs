@@ -1,4 +1,4 @@
-use ::error::Bip39Error;
+use ::error::{Error, ErrorKind};
 
 
 #[derive(Debug)]
@@ -24,14 +24,14 @@ impl KeyType {
     ///
     /// let kt = KeyType::for_keysize(128).unwrap();
     /// ```
-    pub fn for_keysize(size: usize) -> Result<KeyType, Bip39Error> {
+    pub fn for_keysize(size: usize) -> Result<KeyType, Error> {
         let kt = match size {
             128 => KeyType::Key128,
             160 => KeyType::Key160,
             192 => KeyType::Key192,
             224 => KeyType::Key224,
             256 => KeyType::Key256,
-            _ => { return Err(Bip39Error::InvalidKeysize) }
+            _ => { return Err(ErrorKind::InvalidKeysize.into()) }
         };
 
         Ok(kt)
@@ -50,14 +50,14 @@ impl KeyType {
     ///
     /// let kt = KeyType::for_word_length(12).unwrap();
     /// ```
-    pub fn for_word_length(length: usize) -> Result<KeyType, Bip39Error> {
+    pub fn for_word_length(length: usize) -> Result<KeyType, Error> {
         let kt = match length {
             12 => KeyType::Key128,
             15 => KeyType::Key160,
             18 => KeyType::Key192,
             21 => KeyType::Key224,
             24 => KeyType::Key256,
-            _ => { return Err(Bip39Error::InvalidWordLength) }
+            _ => { return Err(ErrorKind::InvalidWordLength.into()) }
         };
 
         Ok(kt)
@@ -78,7 +78,7 @@ impl KeyType {
     ///
     /// let entropy_bits = key_type.entropy_bits();
     /// ```
-    pub fn for_mnemonic<S>(mnemonic: S) -> Result<KeyType, Bip39Error> where S: Into<String> {
+    pub fn for_mnemonic<S>(mnemonic: S) -> Result<KeyType, Error> where S: Into<String> {
         let m = mnemonic.into();
 
         let v: Vec<&str> = m.split(" ").into_iter().collect();
@@ -89,7 +89,7 @@ impl KeyType {
             18 => KeyType::Key192,
             21 => KeyType::Key224,
             24 => KeyType::Key256,
-            _ => { return Err(Bip39Error::InvalidWordLength) }
+            _ => { return Err(ErrorKind::InvalidWordLength.into()) }
         };
 
         Ok(kt)
