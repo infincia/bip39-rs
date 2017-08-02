@@ -1,20 +1,12 @@
-use std::collections::hash_map::HashMap;
-
 use bitreader::BitReader;
 use bit_vec::BitVec;
 
-
 use data_encoding::hex;
-
-
-static BIP39_WORDLIST_ENGLISH: &'static str = include_str!("bip39_english.txt");
-
 
 use ::crypto::{gen_random_bytes, sha256, pbkdf2};
 use ::error::{Error, ErrorKind};
 use ::keytype::KeyType;
 use ::language::Language;
-
 
 #[derive(Debug)]
 pub struct Bip39 {
@@ -52,7 +44,7 @@ impl Bip39 {
 
         let num_words = key_type.word_length();
 
-        let word_list = Bip39::get_wordlist(&lang);
+        let word_list = Language::get_wordlist(&lang);
 
         let entropy = try!(gen_random_bytes(entropy_bits / 8));
 
@@ -133,13 +125,71 @@ impl Bip39 {
         let entropy_bits = key_type.entropy_bits();
         let checksum_bits = key_type.checksum_bits();
 
-        let mut word_map: HashMap<String, u16> = HashMap::new();
-        let word_list = Bip39::get_wordlist(lang);
+		let word_map = Language::get_wordmap(lang);
+		
+        let mut to_validate: BitVec = BitVec::new();
 
-        for (i, item) in word_list.into_iter().enumerate() {
-            word_map.insert(item, i as u16);
+        for word in m.split(" ").into_iter() {
+            let n = match word_map.get(word) {
+                Some(n) => n,
+                None => return Err(ErrorKind::InvalidWord.into())
+            };
+            for i in 0..11 {
+                let bit = Bip39::bit_from_u16_as_u11(*n, i);
+                to_validate.push(bit);
+            }
         }
 
+        let mut checksum_to_validate = BitVec::new();
+        &checksum_to_validate.extend((&to_validate).into_iter().skip(entropy_bits).take(checksum_bits));
+        assert!(checksum_to_validate.len() == checksum_bits, "invalid checksum size");
+
+        let mut entropy_to_validate = BitVec::new();
+        &entropy_to_validate.extend((&to_validate).into_iter().take(entropy_bits));
+        assert!(entropy_to_validate.len() == entropy_bits, "invalid entropy size");
+
+        let hash = sha256(entropy_to_validate.to_bytes().as_ref());
+
+        let entropy_hash_to_validate_bits = BitVec::from_bytes(hash.as_ref());
+
+
+        let mut new_checksum = BitVec::new();
+        &new_checksum.extend(entropy_hash_to_validate_bits.into_iter().take(checksum_bits));
+        assert!(new_checksum.len() == checksum_bits, "invalid new checksum size");
+        if !(new_checksum == checksum_to_validate) {
+            return Err(ErrorKind::InvalidChecksum.into())
+        }
+
+        Ok(())
+    }
+    
+    /// Validate a mnemonic phrase
+    ///
+    /// The phrase supplied will be checked for word length and validated according to the checksum
+    /// specified in BIP0039
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use bip39::{Bip39, KeyType, Language};
+    ///
+    /// let test_mnemonic = "park remain person kitchen mule spell knee armed position rail grid ankle";
+    ///
+    /// match Bip39::validate(test_mnemonic, &Language::English) {
+    ///     Ok(_) => { println!("valid: {}", test_mnemonic); },
+    ///     Err(e) => { println!("e: {}", e); return }
+    /// }
+    /// ```
+    ///
+    pub fn validate<S>(mnemonic: S, lang: &Language) -> Result<(), Error>  where S: Into<String> {
+        let m = mnemonic.into();
+
+        let key_type = try!(KeyType::for_mnemonic(&*m));
+        let entropy_bits = key_type.entropy_bits();
+        let checksum_bits = key_type.checksum_bits();
+
+		let word_map = Language::get_wordmap(lang);
+		
         let mut to_validate: BitVec = BitVec::new();
 
         for word in m.split(" ").into_iter() {
@@ -182,20 +232,6 @@ impl Bip39 {
 
         hex
     }
-
-
-    fn get_wordlist(lang: &Language) -> Vec<String> {
-        let lang_words = match *lang {
-            Language::English => BIP39_WORDLIST_ENGLISH
-        };
-
-        let words: Vec<String> = lang_words.split_whitespace()
-            .map(|s| s.into())
-            .collect();
-
-        words
-    }
-
 
     fn generate_seed(entropy: &[u8], password: &str) -> Vec<u8> {
         let salt = format!("mnemonic{}", password);
