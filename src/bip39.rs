@@ -119,51 +119,10 @@ impl Bip39 {
     /// ```
     ///
     pub fn validate<S>(mnemonic: S, lang: &Language) -> Result<(), Error>  where S: Into<String> {
-        let m = mnemonic.into();
-
-        let key_type = try!(KeyType::for_mnemonic(&*m));
-        let entropy_bits = key_type.entropy_bits();
-        let checksum_bits = key_type.checksum_bits();
-
-		let word_map = Language::get_wordmap(lang);
-		
-        let mut to_validate: BitVec = BitVec::new();
-
-        for word in m.split(" ").into_iter() {
-            let n = match word_map.get(word) {
-                Some(n) => n,
-                None => return Err(ErrorKind::InvalidWord.into())
-            };
-            for i in 0..11 {
-                let bit = Bip39::bit_from_u16_as_u11(*n, i);
-                to_validate.push(bit);
-            }
-        }
-
-        let mut checksum_to_validate = BitVec::new();
-        &checksum_to_validate.extend((&to_validate).into_iter().skip(entropy_bits).take(checksum_bits));
-        assert!(checksum_to_validate.len() == checksum_bits, "invalid checksum size");
-
-        let mut entropy_to_validate = BitVec::new();
-        &entropy_to_validate.extend((&to_validate).into_iter().take(entropy_bits));
-        assert!(entropy_to_validate.len() == entropy_bits, "invalid entropy size");
-
-        let hash = sha256(entropy_to_validate.to_bytes().as_ref());
-
-        let entropy_hash_to_validate_bits = BitVec::from_bytes(hash.as_ref());
-
-
-        let mut new_checksum = BitVec::new();
-        &new_checksum.extend(entropy_hash_to_validate_bits.into_iter().take(checksum_bits));
-        assert!(new_checksum.len() == checksum_bits, "invalid new checksum size");
-        if !(new_checksum == checksum_to_validate) {
-            return Err(ErrorKind::InvalidChecksum.into())
-        }
-
-        Ok(())
+        Bip39::to_entropy(mnemonic, lang).and(Ok(()))
     }
     
-    /// Validate a mnemonic phrase
+    /// Convert mnemonic word list to original entropy value.
     ///
     /// The phrase supplied will be checked for word length and validated according to the checksum
     /// specified in BIP0039
@@ -175,13 +134,13 @@ impl Bip39 {
     ///
     /// let test_mnemonic = "park remain person kitchen mule spell knee armed position rail grid ankle";
     ///
-    /// match Bip39::validate(test_mnemonic, &Language::English) {
-    ///     Ok(_) => { println!("valid: {}", test_mnemonic); },
+    /// match Bip39::to_entropy(test_mnemonic, &Language::English) {
+    ///     Ok(entropy) => { println!("valid, entropy is: {:?}", entropy); },
     ///     Err(e) => { println!("e: {}", e); return }
     /// }
     /// ```
     ///
-    pub fn validate<S>(mnemonic: S, lang: &Language) -> Result<(), Error>  where S: Into<String> {
+    pub fn to_entropy<S>(mnemonic: S, lang: &Language) -> Result<Vec<u8>, Error>  where S: Into<String> {
         let m = mnemonic.into();
 
         let key_type = try!(KeyType::for_mnemonic(&*m));
@@ -210,8 +169,10 @@ impl Bip39 {
         let mut entropy_to_validate = BitVec::new();
         &entropy_to_validate.extend((&to_validate).into_iter().take(entropy_bits));
         assert!(entropy_to_validate.len() == entropy_bits, "invalid entropy size");
-
-        let hash = sha256(entropy_to_validate.to_bytes().as_ref());
+		
+		let entropy = entropy_to_validate.to_bytes();
+		
+        let hash = sha256(entropy.as_ref());
 
         let entropy_hash_to_validate_bits = BitVec::from_bytes(hash.as_ref());
 
@@ -223,12 +184,19 @@ impl Bip39 {
             return Err(ErrorKind::InvalidChecksum.into())
         }
 
-        Ok(())
+        Ok(entropy)
     }
 
     pub fn to_hex(&self) -> String {
         let seed: &[u8] = self.seed.as_ref();
         let hex = hex::encode(seed);
+
+        hex
+    }
+    
+    pub fn to_entropy_hex(&self) -> String {
+        let entropy = Bip39::to_entropy(self.mnemonic.as_str(), &self.lang).unwrap();
+        let hex = hex::encode(entropy.as_slice());
 
         hex
     }
