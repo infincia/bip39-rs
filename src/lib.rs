@@ -9,6 +9,7 @@ pub mod bip39;
 pub mod error;
 pub mod keytype;
 pub mod language;
+pub mod util;
 
 mod crypto;
 

@@ -7,6 +7,7 @@ use ::crypto::{gen_random_bytes, sha256, pbkdf2};
 use ::error::{Error, ErrorKind};
 use ::keytype::KeyType;
 use ::language::Language;
+use ::util::bit_from_u16_as_u11;
 
 #[derive(Debug)]
 pub struct Bip39 {
@@ -157,7 +158,7 @@ impl Bip39 {
                 None => return Err(ErrorKind::InvalidWord.into())
             };
             for i in 0..11 {
-                let bit = Bip39::bit_from_u16_as_u11(*n, i);
+                let bit = bit_from_u16_as_u11(*n, i);
                 to_validate.push(bit);
             }
         }
@@ -207,13 +208,4 @@ impl Bip39 {
 
         seed
     }
-
-    fn bit_from_u16_as_u11(input: u16, position: u16) -> bool {
-        if position < 11 {
-            input & (1 << (10 - position)) != 0
-        } else {
-            false
-        }
-    }
-
 }
