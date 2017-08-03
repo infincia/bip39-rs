@@ -197,6 +197,18 @@ impl Mnemonic {
         Ok(entropy)
     }
 
+    pub fn get_string(&self) -> &str {
+        self.string.as_ref()
+    }
+
+    pub fn get_seed(&self) -> &[u8] {
+        self.seed.as_ref()
+    }
+
+    pub fn get_language(&self) -> Language {
+        self.lang
+    }
+
     pub fn to_hex(&self) -> String {
 
         let seed: &[u8] = self.seed.as_ref();
