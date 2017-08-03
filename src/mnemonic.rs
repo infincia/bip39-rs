@@ -5,7 +5,7 @@ use data_encoding::hex;
 
 use ::crypto::{gen_random_bytes, sha256};
 use ::error::{Error, ErrorKind};
-use ::keytype::KeyType;
+use ::mnemonic_type::MnemonicType;
 use ::language::Language;
 use ::util::bit_from_u16_as_u11;
 use ::seed::Seed;
@@ -52,11 +52,11 @@ impl Mnemonic {
     /// # Example
     ///
     /// ```
-    /// use bip39::{Mnemonic, KeyType, Language};
+    /// use bip39::{Mnemonic, MnemonicType, Language};
     ///
-    /// let kt = KeyType::for_word_length(12).unwrap();
+    /// let mnemonic_type = MnemonicType::for_word_count(12).unwrap();
     ///
-    /// let mnemonic = match Mnemonic::new(kt, Language::English, "") {
+    /// let mnemonic = match Mnemonic::new(mnemonic_type, Language::English, "") {
     ///     Ok(b) => b,
     ///     Err(e) => { println!("e: {}", e); return }
     /// };
@@ -68,13 +68,13 @@ impl Mnemonic {
     /// println!("phrase: {}", phrase);
     /// ```
     /// [Seed]: ../seed/struct.Seed.html
-    pub fn new<S>(key_type: KeyType,
+    pub fn new<S>(mnemonic_type: MnemonicType,
                   lang: Language,
                   password: S) -> Result<Mnemonic, Error> where S: Into<String> {
 
-        let entropy_bits = key_type.entropy_bits();
+        let entropy_bits = mnemonic_type.entropy_bits();
 
-        let num_words = key_type.word_length();
+        let num_words = mnemonic_type.word_count();
 
         let word_list = Language::get_wordlist(&lang);
 
@@ -187,9 +187,9 @@ impl Mnemonic {
 
         let m = string.into();
 
-        let key_type = KeyType::for_mnemonic(&*m)?;
-        let entropy_bits = key_type.entropy_bits();
-        let checksum_bits = key_type.checksum_bits();
+        let mnemonic_type = MnemonicType::for_phrase(&*m)?;
+        let entropy_bits = mnemonic_type.entropy_bits();
+        let checksum_bits = mnemonic_type.checksum_bits();
 
 		let word_map = lang.get_wordmap();
 		

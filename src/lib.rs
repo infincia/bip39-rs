@@ -14,7 +14,7 @@ extern crate ring;
 
 mod mnemonic;
 mod error;
-pub mod keytype;
+mod mnemonic_type;
 mod language;
 mod util;
 mod seed;
@@ -23,6 +23,6 @@ mod crypto;
 
 pub use language::Language;
 pub use mnemonic::Mnemonic;
-pub use keytype::KeyType;
+pub use mnemonic_type::MnemonicType;
 pub use seed::Seed;
 pub use error::Error;
