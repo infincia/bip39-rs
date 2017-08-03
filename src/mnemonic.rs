@@ -72,9 +72,9 @@ impl Mnemonic {
             words.push(word_list[n.unwrap() as usize].as_ref());
         }
 
-        let mnemonic = words.join(" ");
+        let string = words.join(" ");
 
-        Mnemonic::from_mnemonic(mnemonic, lang, password.into())
+        Mnemonic::from_string(string, lang, password.into())
     }
 
     /// Create a `Mnemonic` struct from an existing mnemonic phrase
@@ -89,12 +89,12 @@ impl Mnemonic {
     ///
     /// let test_mnemonic = "park remain person kitchen mule spell knee armed position rail grid ankle";
     ///
-    /// let b = Mnemonic::from_mnemonic(test_mnemonic, Language::English, "").unwrap();
+    /// let b = Mnemonic::from_string(test_mnemonic, Language::English, "").unwrap();
     /// ```
     ///
 
-    pub fn from_mnemonic<S>(mnemonic: S, lang: Language, password: S) -> Result<Mnemonic, Error> where S: Into<String> {
-        let m = mnemonic.into();
+    pub fn from_string<S>(string: S, lang: Language, password: S) -> Result<Mnemonic, Error> where S: Into<String> {
+        let m = string.into();
         let p = password.into();
         try!(Mnemonic::validate(&*m, &lang));
 
