@@ -39,7 +39,8 @@ use ::seed::Seed;
 pub struct Mnemonic {
     string: String,
     seed: Seed,
-    lang: Language
+    lang: Language,
+    entropy: Vec<u8>,
 }
 
 impl Mnemonic {
@@ -130,9 +131,22 @@ impl Mnemonic {
 
         let m = string.into();
         let p = password.into();
-        Mnemonic::validate(&*m, lang)?;
 
-        Ok(Mnemonic { string: (&m).clone(), seed: Seed::generate(&m.as_bytes(), &p), lang: lang})
+        // this also validates the checksum and phrase length before returning the entropy so we
+        // can store it. We don't use the validate function here to avoid having a public API that
+        // takes a phrase string and returns the entropy directly. See the Mnemonic::entropy()
+        // docs for the reason.
+        let entropy = Mnemonic::entropy(&*m, lang)?;
+        let seed = Seed::generate(&m.as_bytes(), &p);
+
+        let mnemonic = Mnemonic {
+            string: (&m).clone(),
+            seed: seed,
+            lang: lang,
+            entropy: entropy
+        };
+
+        Ok(mnemonic)
     }
 
     /// Validate a mnemonic phrase
@@ -217,6 +231,25 @@ impl Mnemonic {
         Ok(entropy)
     }
 
+    /// Get the original entropy value of the mnemonic phrase as an owned Vec<u8>
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use bip39::{Mnemonic, Language};
+    ///
+    /// let test_mnemonic = "park remain person kitchen mule spell knee armed position rail grid ankle";
+    ///
+    /// let mnemonic = Mnemonic::from_string(test_mnemonic, Language::English, "").unwrap();
+    ///
+    /// let entropy: Vec<u8> = mnemonic.get_entropy();
+    /// ```
+    ///
+    /// Note: this function clones the internal entropy bytes
+    pub fn get_entropy(&self) -> Vec<u8> {
+        self.entropy.clone()
+    }
+
     /// Get the mnemonic phrase as a string reference
     pub fn as_str(&self) -> &str {
         self.string.as_ref()
@@ -254,12 +287,30 @@ impl Mnemonic {
     /// Get the original entropy used to create the Mnemonic as a hex string
     ///
     /// Note: this allocates a new String
-    pub fn to_entropy_hex(&self) -> String {
+    pub fn get_entropy_hex(&self) -> String {
 
-        let entropy = Mnemonic::to_entropy(self.string.as_str(), self.lang).unwrap();
-        let hex = hex::encode(entropy.as_slice());
+        let hex = hex::encode(self.as_entropy());
 
         hex
+    }
+
+    /// Get the original entropy value of the mnemonic phrase as a slice
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use bip39::{Mnemonic, Language};
+    ///
+    /// let test_mnemonic = "park remain person kitchen mule spell knee armed position rail grid ankle";
+    ///
+    /// let mnemonic = Mnemonic::from_string(test_mnemonic, Language::English, "").unwrap();
+    ///
+    /// let entropy: &[u8] = mnemonic.as_entropy();
+    /// ```
+    ///
+    /// Note: this function clones the internal entropy bytes
+    pub fn as_entropy(&self) -> &[u8] {
+        self.entropy.as_ref()
     }
 }
 
