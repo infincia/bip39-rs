@@ -197,6 +197,7 @@ impl Mnemonic {
         Ok(entropy)
     }
 
+    /// Get the mnemonic phrase as a string reference
     pub fn as_str(&self) -> &str {
         self.string.as_ref()
     }
