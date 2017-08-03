@@ -50,7 +50,7 @@ impl Mnemonic {
 
         let word_list = Language::get_wordlist(&lang);
 
-        let entropy = try!(gen_random_bytes(entropy_bits / 8));
+        let entropy = gen_random_bytes(entropy_bits / 8)?;
 
 
         let entropy_hash = sha256(entropy.as_ref());
@@ -101,7 +101,7 @@ impl Mnemonic {
 
         let m = string.into();
         let p = password.into();
-        try!(Mnemonic::validate(&*m, &lang));
+        Mnemonic::validate(&*m, &lang)?;
 
         Ok(Mnemonic { string: (&m).clone(), seed: Mnemonic::generate_seed(&m.as_bytes(), &p), lang: lang})
     }
@@ -153,7 +153,7 @@ impl Mnemonic {
 
         let m = string.into();
 
-        let key_type = try!(KeyType::for_mnemonic(&*m));
+        let key_type = KeyType::for_mnemonic(&*m)?;
         let entropy_bits = key_type.entropy_bits();
         let checksum_bits = key_type.checksum_bits();
 

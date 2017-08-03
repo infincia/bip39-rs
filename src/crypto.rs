@@ -21,7 +21,7 @@ pub fn sha256(input: &[u8]) -> Vec<u8> {
 
 pub fn gen_random_bytes(byte_length: usize) -> Result<Vec<u8>, Error> {
 
-    let mut rng = try!(OsRng::new());
+    let mut rng = OsRng::new()?;
     let entropy = rng.gen_iter::<u8>().take(byte_length).collect::<Vec<u8>>();
 
     Ok(entropy)
