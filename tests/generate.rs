@@ -11,12 +11,12 @@ fn generate_12_english() {
         Ok(b) => b,
         Err(_) => { assert!(false); return }
     };
-    let phrase = b.string;
+    let phrase = b.get_string();
     let words: Vec<&str> = phrase.split(" ").into_iter().collect();
 
     assert!(words.len() == 12);
     assert!(words.len() == kt.word_length());
-    assert!(b.seed.len() == 64);
+    assert!(b.get_seed().len() == 64);
 }
 
 #[test]
@@ -27,12 +27,12 @@ fn generate_15_english() {
         Ok(b) => b,
         Err(_) => { assert!(false); return }
     };
-    let phrase = b.string;
+    let phrase = b.get_string();
     let words: Vec<&str> = phrase.split(" ").into_iter().collect();
 
     assert!(words.len() == 15);
     assert!(words.len() == kt.word_length());
-    assert!(b.seed.len() == 64);
+    assert!(b.get_seed().len() == 64);
 }
 
 #[test]
@@ -43,12 +43,12 @@ fn generate_18_english() {
         Ok(b) => b,
         Err(_) => { assert!(false); return }
     };
-    let phrase = b.string;
+    let phrase = b.get_string();
     let words: Vec<&str> = phrase.split(" ").into_iter().collect();
 
     assert!(words.len() == 18);
     assert!(words.len() == kt.word_length());
-    assert!(b.seed.len() == 64);
+    assert!(b.get_seed().len() == 64);
 
 }
 
@@ -61,12 +61,12 @@ fn generate_21_english() {
         Err(_) => { assert!(false); return }
     };
 
-    let phrase = b.string;
+    let phrase = b.get_string();
     let words: Vec<&str> = phrase.split(" ").into_iter().collect();
 
     assert!(words.len() == 21);
     assert!(words.len() == kt.word_length());
-    assert!(b.seed.len() == 64);
+    assert!(b.get_seed().len() == 64);
 }
 
 #[test]
@@ -78,10 +78,10 @@ fn generate_24_english() {
         Err(_) => { assert!(false); return }
     };
 
-    let phrase = b.string;
+    let phrase = b.get_string();
     let words: Vec<&str> = phrase.split(" ").into_iter().collect();
 
     assert!(words.len() == 24);
     assert!(words.len() == kt.word_length());
-    assert!(b.seed.len() == 64);
+    assert!(b.get_seed().len() == 64);
 }

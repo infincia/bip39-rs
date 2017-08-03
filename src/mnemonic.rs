@@ -36,9 +36,9 @@ impl Mnemonic {
     ///     Err(e) => { println!("e: {}", e); return }
     /// };
     ///
-    /// let phrase = &bip39.string;
-    /// let seed = &bip39.seed;
-    /// println!("phrase: {}", string);
+    /// let phrase = &bip39.get_string();
+    /// let seed = &bip39.get_seed();
+    /// println!("phrase: {}", phrase);
     /// ```
     pub fn new<S>(key_type: &KeyType,
                   lang: Language,
