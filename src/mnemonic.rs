@@ -31,7 +31,7 @@ impl Mnemonic {
     ///
     /// let kt = KeyType::for_word_length(12).unwrap();
     ///
-    /// let bip39 = match Mnemonic::new(&kt, Language::English, "") {
+    /// let bip39 = match Mnemonic::new(kt, Language::English, "") {
     ///     Ok(b) => b,
     ///     Err(e) => { println!("e: {}", e); return }
     /// };
@@ -40,7 +40,7 @@ impl Mnemonic {
     /// let seed = &bip39.get_seed();
     /// println!("phrase: {}", phrase);
     /// ```
-    pub fn new<S>(key_type: &KeyType,
+    pub fn new<S>(key_type: KeyType,
                   lang: Language,
                   password: S) -> Result<Mnemonic, Error> where S: Into<String> {
 
@@ -101,7 +101,7 @@ impl Mnemonic {
 
         let m = string.into();
         let p = password.into();
-        Mnemonic::validate(&*m, &lang)?;
+        Mnemonic::validate(&*m, lang)?;
 
         Ok(Mnemonic { string: (&m).clone(), seed: Mnemonic::generate_seed(&m.as_bytes(), &p), lang: lang})
     }
@@ -118,14 +118,14 @@ impl Mnemonic {
     ///
     /// let test_mnemonic = "park remain person kitchen mule spell knee armed position rail grid ankle";
     ///
-    /// match Mnemonic::validate(test_mnemonic, &Language::English) {
+    /// match Mnemonic::validate(test_mnemonic, Language::English) {
     ///     Ok(_) => { println!("valid: {}", test_mnemonic); },
     ///     Err(e) => { println!("e: {}", e); return }
     /// }
     /// ```
     ///
     pub fn validate<S>(string: S,
-                       lang: &Language) -> Result<(), Error> where S: Into<String> {
+                       lang: Language) -> Result<(), Error> where S: Into<String> {
 
         Mnemonic::to_entropy(string, lang).and(Ok(()))
     }
@@ -142,14 +142,14 @@ impl Mnemonic {
     ///
     /// let test_mnemonic = "park remain person kitchen mule spell knee armed position rail grid ankle";
     ///
-    /// match Mnemonic::to_entropy(test_mnemonic, &Language::English) {
+    /// match Mnemonic::to_entropy(test_mnemonic, Language::English) {
     ///     Ok(entropy) => { println!("valid, entropy is: {:?}", entropy); },
     ///     Err(e) => { println!("e: {}", e); return }
     /// }
     /// ```
     ///
     pub fn to_entropy<S>(string: S,
-                         lang: &Language) -> Result<Vec<u8>, Error> where S: Into<String> {
+                         lang: Language) -> Result<Vec<u8>, Error> where S: Into<String> {
 
         let m = string.into();
 
@@ -219,7 +219,7 @@ impl Mnemonic {
     
     pub fn to_entropy_hex(&self) -> String {
 
-        let entropy = Mnemonic::to_entropy(self.string.as_str(), &self.lang).unwrap();
+        let entropy = Mnemonic::to_entropy(self.string.as_str(), self.lang).unwrap();
         let hex = hex::encode(entropy.as_slice());
 
         hex
