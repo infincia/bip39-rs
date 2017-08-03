@@ -88,7 +88,7 @@ impl Mnemonic {
     /// # Example
     ///
     /// ```
-    /// use bip39::{Mnemonic, KeyType, Language};
+    /// use bip39::{Mnemonic, Language};
     ///
     /// let test_mnemonic = "park remain person kitchen mule spell knee armed position rail grid ankle";
     ///
@@ -114,7 +114,7 @@ impl Mnemonic {
     /// # Example
     ///
     /// ```
-    /// use bip39::{Mnemonic, KeyType, Language};
+    /// use bip39::{Mnemonic, Language};
     ///
     /// let test_mnemonic = "park remain person kitchen mule spell knee armed position rail grid ankle";
     ///
@@ -138,7 +138,7 @@ impl Mnemonic {
     /// # Example
     ///
     /// ```
-    /// use bip39::{Mnemonic, KeyType, Language};
+    /// use bip39::{Mnemonic, Language};
     ///
     /// let test_mnemonic = "park remain person kitchen mule spell knee armed position rail grid ankle";
     ///
