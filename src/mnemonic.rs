@@ -31,13 +31,13 @@ impl Mnemonic {
     ///
     /// let kt = KeyType::for_word_length(12).unwrap();
     ///
-    /// let bip39 = match Mnemonic::new(kt, Language::English, "") {
+    /// let mnemonic = match Mnemonic::new(kt, Language::English, "") {
     ///     Ok(b) => b,
     ///     Err(e) => { println!("e: {}", e); return }
     /// };
     ///
-    /// let phrase = &bip39.get_string();
-    /// let seed = &bip39.get_seed();
+    /// let phrase = mnemonic.get_string();
+    /// let seed = mnemonic.get_seed();
     /// println!("phrase: {}", phrase);
     /// ```
     pub fn new<S>(key_type: KeyType,
