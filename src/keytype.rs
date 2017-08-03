@@ -1,7 +1,7 @@
 use ::error::{Error, ErrorKind};
 
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum KeyType {
     Key128,
     Key160,
