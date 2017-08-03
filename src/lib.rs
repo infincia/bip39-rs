@@ -8,7 +8,7 @@ extern crate ring;
 mod mnemonic;
 pub mod error;
 pub mod keytype;
-pub mod language;
+mod language;
 pub mod util;
 mod seed;
 
