@@ -1,3 +1,11 @@
+//! These are internal helper functions used when creating a new [`Mnemonic`][Mnemonic], and when turning a [`Mnemonic`][Mnemonic]
+//! into a [`Seed`][Seed].
+//!
+//! [Mnemonic]: ../mnemonic/struct.Mnemonic.html
+//! [Seed]: ../seed/struct.Seed.html
+//!
+
+
 use ring::digest::{self, digest};
 use ring::pbkdf2;
 
@@ -10,6 +18,8 @@ static PBKDF2_ROUNDS: u32 = 2048;
 static PBKDF2_BYTES: usize = 64;
 
 
+/// SHA256 helper function, internal to the crate
+///
 pub(crate) fn sha256(input: &[u8]) -> Vec<u8> {
 
     static DIGEST_ALG: &'static digest::Algorithm = &digest::SHA256;
@@ -19,6 +29,8 @@ pub(crate) fn sha256(input: &[u8]) -> Vec<u8> {
     hash.as_ref().to_vec()
 }
 
+/// Random byte generator, used to create new mnemonics
+///
 pub(crate) fn gen_random_bytes(byte_length: usize) -> Result<Vec<u8>, Error> {
 
     let mut rng = OsRng::new()?;
@@ -27,6 +39,11 @@ pub(crate) fn gen_random_bytes(byte_length: usize) -> Result<Vec<u8>, Error> {
     Ok(entropy)
 }
 
+/// PBKDF2 helper, used to generate [`Seed`][Seed] from [`Mnemonic`][Mnemonic]
+///
+/// [Mnemonic]: ../mnemonic/struct.Mnemonic.html
+/// [Seed]: ../seed/struct.Seed.html
+/// 
 pub(crate) fn pbkdf2(input: &[u8],
               salt: String) -> Vec<u8> {
 
