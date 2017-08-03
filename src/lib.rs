@@ -9,7 +9,7 @@ mod mnemonic;
 pub mod error;
 pub mod keytype;
 mod language;
-pub mod util;
+mod util;
 mod seed;
 
 mod crypto;
