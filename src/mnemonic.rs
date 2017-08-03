@@ -39,6 +39,8 @@ impl Mnemonic {
     ///
     /// let phrase = mnemonic.get_string();
     /// let seed = mnemonic.get_seed();
+    /// let seed_bytes: &[u8] = seed.as_bytes();
+    /// let seed_hex: &str = seed.as_hex();
     /// println!("phrase: {}", phrase);
     /// ```
     pub fn new<S>(key_type: KeyType,
