@@ -10,15 +10,15 @@ use ::language::Language;
 use ::util::bit_from_u16_as_u11;
 
 #[derive(Debug)]
-pub struct Bip39 {
+pub struct Mnemonic {
     pub mnemonic: String,
     pub seed: Vec<u8>,
     pub lang: Language
 }
 
-impl Bip39 {
+impl Mnemonic {
 
-    /// Generates a new `Bip39` struct
+    /// Generates a new `Mnemonic` struct
     ///
     /// When returned, the struct will be filled in with the phrase and the seed value
     /// as 64 bytes raw
@@ -27,11 +27,11 @@ impl Bip39 {
     /// # Example
     ///
     /// ```
-    /// use bip39::{Bip39, KeyType, Language};
+    /// use bip39::{Mnemonic, KeyType, Language};
     ///
     /// let kt = KeyType::for_word_length(12).unwrap();
     ///
-    /// let bip39 = match Bip39::new(&kt, Language::English, "") {
+    /// let bip39 = match Mnemonic::new(&kt, Language::English, "") {
     ///     Ok(b) => b,
     ///     Err(e) => { println!("e: {}", e); return }
     /// };
@@ -40,7 +40,7 @@ impl Bip39 {
     /// let seed = &bip39.seed;
     /// println!("phrase: {}", phrase);
     /// ```
-    pub fn new<S>(key_type: &KeyType, lang: Language, password: S) -> Result<Bip39, Error>  where S: Into<String> {
+    pub fn new<S>(key_type: &KeyType, lang: Language, password: S) -> Result<Mnemonic, Error>  where S: Into<String> {
         let entropy_bits = key_type.entropy_bits();
 
         let num_words = key_type.word_length();
@@ -74,10 +74,10 @@ impl Bip39 {
 
         let mnemonic = words.join(" ");
 
-        Bip39::from_mnemonic(mnemonic, lang, password.into())
+        Mnemonic::from_mnemonic(mnemonic, lang, password.into())
     }
 
-    /// Create a `Bip39` struct from an existing mnemonic phrase
+    /// Create a `Mnemonic` struct from an existing mnemonic phrase
     ///
     /// The phrase supplied will be checked for word length and validated according to the checksum
     /// specified in BIP0039
@@ -85,20 +85,20 @@ impl Bip39 {
     /// # Example
     ///
     /// ```
-    /// use bip39::{Bip39, KeyType, Language};
+    /// use bip39::{Mnemonic, KeyType, Language};
     ///
     /// let test_mnemonic = "park remain person kitchen mule spell knee armed position rail grid ankle";
     ///
-    /// let b = Bip39::from_mnemonic(test_mnemonic, Language::English, "").unwrap();
+    /// let b = Mnemonic::from_mnemonic(test_mnemonic, Language::English, "").unwrap();
     /// ```
     ///
 
-    pub fn from_mnemonic<S>(mnemonic: S, lang: Language, password: S) -> Result<Bip39, Error> where S: Into<String> {
+    pub fn from_mnemonic<S>(mnemonic: S, lang: Language, password: S) -> Result<Mnemonic, Error> where S: Into<String> {
         let m = mnemonic.into();
         let p = password.into();
-        try!(Bip39::validate(&*m, &lang));
+        try!(Mnemonic::validate(&*m, &lang));
 
-        Ok(Bip39 { mnemonic: (&m).clone(), seed: Bip39::generate_seed(&m.as_bytes(), &p), lang: lang})
+        Ok(Mnemonic { mnemonic: (&m).clone(), seed: Mnemonic::generate_seed(&m.as_bytes(), &p), lang: lang})
     }
 
     /// Validate a mnemonic phrase
@@ -109,18 +109,18 @@ impl Bip39 {
     /// # Example
     ///
     /// ```
-    /// use bip39::{Bip39, KeyType, Language};
+    /// use bip39::{Mnemonic, KeyType, Language};
     ///
     /// let test_mnemonic = "park remain person kitchen mule spell knee armed position rail grid ankle";
     ///
-    /// match Bip39::validate(test_mnemonic, &Language::English) {
+    /// match Mnemonic::validate(test_mnemonic, &Language::English) {
     ///     Ok(_) => { println!("valid: {}", test_mnemonic); },
     ///     Err(e) => { println!("e: {}", e); return }
     /// }
     /// ```
     ///
     pub fn validate<S>(mnemonic: S, lang: &Language) -> Result<(), Error>  where S: Into<String> {
-        Bip39::to_entropy(mnemonic, lang).and(Ok(()))
+        Mnemonic::to_entropy(mnemonic, lang).and(Ok(()))
     }
     
     /// Convert mnemonic word list to original entropy value.
@@ -131,11 +131,11 @@ impl Bip39 {
     /// # Example
     ///
     /// ```
-    /// use bip39::{Bip39, KeyType, Language};
+    /// use bip39::{Mnemonic, KeyType, Language};
     ///
     /// let test_mnemonic = "park remain person kitchen mule spell knee armed position rail grid ankle";
     ///
-    /// match Bip39::to_entropy(test_mnemonic, &Language::English) {
+    /// match Mnemonic::to_entropy(test_mnemonic, &Language::English) {
     ///     Ok(entropy) => { println!("valid, entropy is: {:?}", entropy); },
     ///     Err(e) => { println!("e: {}", e); return }
     /// }
@@ -196,7 +196,7 @@ impl Bip39 {
     }
     
     pub fn to_entropy_hex(&self) -> String {
-        let entropy = Bip39::to_entropy(self.mnemonic.as_str(), &self.lang).unwrap();
+        let entropy = Mnemonic::to_entropy(self.mnemonic.as_str(), &self.lang).unwrap();
         let hex = hex::encode(entropy.as_slice());
 
         hex

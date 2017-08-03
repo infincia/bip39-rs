@@ -14,6 +14,6 @@ pub mod util;
 mod crypto;
 
 pub use language::Language;
-pub use bip39::Bip39;
+pub use bip39::Mnemonic;
 pub use keytype::KeyType;
 pub use error::Error;

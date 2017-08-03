@@ -1,13 +1,13 @@
 extern crate bip39;
 
-use ::bip39::{Bip39, KeyType, Language};
+use ::bip39::{Mnemonic, KeyType, Language};
 
 
 #[test]
 fn generate_12_english() {
     let kt = KeyType::for_word_length(12).unwrap();
 
-    let b = match Bip39::new(&kt, Language::English, "") {
+    let b = match Mnemonic::new(&kt, Language::English, "") {
         Ok(b) => b,
         Err(_) => { assert!(false); return }
     };
@@ -23,7 +23,7 @@ fn generate_12_english() {
 fn generate_15_english() {
     let kt = KeyType::for_word_length(15).unwrap();
 
-    let b = match Bip39::new(&kt, Language::English, "") {
+    let b = match Mnemonic::new(&kt, Language::English, "") {
         Ok(b) => b,
         Err(_) => { assert!(false); return }
     };
@@ -39,7 +39,7 @@ fn generate_15_english() {
 fn generate_18_english() {
     let kt = KeyType::for_word_length(18).unwrap();
 
-    let b = match Bip39::new(&kt, Language::English, "") {
+    let b = match Mnemonic::new(&kt, Language::English, "") {
         Ok(b) => b,
         Err(_) => { assert!(false); return }
     };
@@ -56,7 +56,7 @@ fn generate_18_english() {
 fn generate_21_english() {
     let kt = KeyType::for_word_length(21).unwrap();
 
-    let b = match Bip39::new(&kt, Language::English, "") {
+    let b = match Mnemonic::new(&kt, Language::English, "") {
         Ok(b) => b,
         Err(_) => { assert!(false); return }
     };
@@ -73,7 +73,7 @@ fn generate_21_english() {
 fn generate_24_english() {
     let kt = KeyType::for_word_length(24).unwrap();
 
-    let b = match Bip39::new(&kt, Language::English, "") {
+    let b = match Mnemonic::new(&kt, Language::English, "") {
         Ok(b) => b,
         Err(_) => { assert!(false); return }
     };
