@@ -5,7 +5,7 @@ extern crate bitreader;
 extern crate bit_vec;
 extern crate ring;
 
-pub mod mnemonic;
+mod mnemonic;
 pub mod error;
 pub mod keytype;
 pub mod language;
