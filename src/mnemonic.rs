@@ -163,28 +163,15 @@ impl Mnemonic {
 
         Mnemonic::to_entropy(string, lang).and(Ok(()))
     }
-    
-    /// Convert mnemonic word list to original entropy value.
-    ///
-    /// The phrase supplied will be checked for word length and validated according to the checksum
-    /// specified in BIP0039
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use bip39::{Mnemonic, Language};
-    ///
-    /// let test_mnemonic = "park remain person kitchen mule spell knee armed position rail grid ankle";
-    ///
-    /// match Mnemonic::to_entropy(test_mnemonic, Language::English) {
-    ///     Ok(entropy) => { println!("valid, entropy is: {:?}", entropy); },
-    ///     Err(e) => { println!("e: {}", e); return }
-    /// }
-    /// ```
-    ///
-    pub fn to_entropy<S>(string: S,
-                         lang: Language) -> Result<Vec<u8>, Error> where S: Into<String> {
 
+    /// Calculate the checksum, verify it and return the entropy
+    ///
+    /// Only intended for internal use, as returning a `Vec<u8>` that looks a bit like it could be
+    /// used as the seed is likely to cause problems for someone eventually. All the other functions
+    /// that return something like that are explicit about what it is and what to use it for.
+    ///
+    fn to_entropy<S>(string: S,
+                     lang: Language) -> Result<Vec<u8>, Error> where S: Into<String> {
         let m = string.into();
 
         let mnemonic_type = MnemonicType::for_phrase(&*m)?;
