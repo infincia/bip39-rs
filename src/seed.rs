@@ -9,7 +9,7 @@ use data_encoding::hex;
 ///
 /// Because it is not possible to create a [`Mnemonic`][Mnemonic] instance that is invalid, it is
 /// therefore impossible to have a [`Seed`][Seed] instance that is invalid. This guarantees that only
-/// a valid, intact mnemonic phrase can be used as a seed.
+/// a valid, intact mnemonic phrase can be used to derive HD wallet addresses.
 ///
 /// To get the raw byte value use [`Seed::as_bytes()`][Seed::as_bytes()], or the hex representation
 /// with [`Seed::as_hex()`][Seed::as_hex()]. These can be used to derive HD wallet addresses using
