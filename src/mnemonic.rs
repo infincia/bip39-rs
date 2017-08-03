@@ -197,8 +197,15 @@ impl Mnemonic {
         Ok(entropy)
     }
 
-    pub fn get_string(&self) -> &str {
+    pub fn as_str(&self) -> &str {
         self.string.as_ref()
+    }
+
+    /// Get the mnemonic phrase as an owned string
+    ///
+    /// Note: this clones the internal Mnemonic String instance
+    pub fn get_string(&self) -> String {
+        self.string.clone()
     }
 
     pub fn get_seed(&self) -> &[u8] {
