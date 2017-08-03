@@ -27,7 +27,8 @@ pub fn gen_random_bytes(byte_length: usize) -> Result<Vec<u8>, Error> {
     Ok(entropy)
 }
 
-pub fn pbkdf2(input: &[u8], salt: String) -> Vec<u8> {
+pub fn pbkdf2(input: &[u8],
+              salt: String) -> Vec<u8> {
 
     let mut seed = vec![0u8; PBKDF2_BYTES];
 
