@@ -10,7 +10,7 @@ pub mod error;
 pub mod keytype;
 pub mod language;
 pub mod util;
-pub mod seed;
+mod seed;
 
 mod crypto;
 
