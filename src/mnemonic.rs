@@ -112,6 +112,10 @@ impl Mnemonic {
     /// The phrase supplied will be checked for word length and validated according to the checksum
     /// specified in BIP0039
     ///
+    /// Note: you cannot use this function to determine anything more than whether the mnemonic
+    /// phrase itself is intact, it does not check the password or compute the seed value. For that,
+    /// you should use [`Mnemonic::from_string()`][Mnemonic::from_string()].
+    ///
     /// # Example
     ///
     /// ```
@@ -125,6 +129,7 @@ impl Mnemonic {
     /// }
     /// ```
     ///
+    /// [Mnemonic::from_string()]: ../mnemonic/struct.Mnemonic.html#method.from_string
     pub fn validate<S>(string: S,
                        lang: Language) -> Result<(), Error> where S: Into<String> {
 
