@@ -6,7 +6,7 @@ extern crate bit_vec;
 extern crate ring;
 
 mod mnemonic;
-pub mod error;
+mod error;
 pub mod keytype;
 mod language;
 mod util;
