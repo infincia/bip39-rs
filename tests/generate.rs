@@ -16,7 +16,9 @@ fn generate_12_english() {
 
     assert!(words.len() == 12);
     assert!(words.len() == kt.word_length());
-    assert!(b.get_seed().len() == 64);
+    let seed = b.get_seed();
+    let seed_bytes: &[u8] = seed.as_bytes();
+    assert!(seed_bytes.len() == 64);
 }
 
 #[test]
@@ -32,7 +34,9 @@ fn generate_15_english() {
 
     assert!(words.len() == 15);
     assert!(words.len() == kt.word_length());
-    assert!(b.get_seed().len() == 64);
+    let seed = b.get_seed();
+    let seed_bytes: &[u8] = seed.as_bytes();
+    assert!(seed_bytes.len() == 64);
 }
 
 #[test]
@@ -48,8 +52,9 @@ fn generate_18_english() {
 
     assert!(words.len() == 18);
     assert!(words.len() == kt.word_length());
-    assert!(b.get_seed().len() == 64);
-
+    let seed = b.get_seed();
+    let seed_bytes: &[u8] = seed.as_bytes();
+    assert!(seed_bytes.len() == 64);
 }
 
 #[test]
@@ -66,7 +71,9 @@ fn generate_21_english() {
 
     assert!(words.len() == 21);
     assert!(words.len() == kt.word_length());
-    assert!(b.get_seed().len() == 64);
+    let seed = b.get_seed();
+    let seed_bytes: &[u8] = seed.as_bytes();
+    assert!(seed_bytes.len() == 64);
 }
 
 #[test]
@@ -83,5 +90,7 @@ fn generate_24_english() {
 
     assert!(words.len() == 24);
     assert!(words.len() == kt.word_length());
-    assert!(b.get_seed().len() == 64);
+    let seed = b.get_seed();
+    let seed_bytes: &[u8] = seed.as_bytes();
+    assert!(seed_bytes.len() == 64);
 }
