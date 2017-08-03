@@ -160,8 +160,7 @@ impl Mnemonic {
     /// [Mnemonic::from_string()]: ../mnemonic/struct.Mnemonic.html#method.from_string
     pub fn validate<S>(string: S,
                        lang: Language) -> Result<(), Error> where S: Into<String> {
-
-        Mnemonic::to_entropy(string, lang).and(Ok(()))
+        Mnemonic::entropy(string, lang).and(Ok(()))
     }
 
     /// Calculate the checksum, verify it and return the entropy
@@ -170,8 +169,8 @@ impl Mnemonic {
     /// used as the seed is likely to cause problems for someone eventually. All the other functions
     /// that return something like that are explicit about what it is and what to use it for.
     ///
-    fn to_entropy<S>(string: S,
-                     lang: Language) -> Result<Vec<u8>, Error> where S: Into<String> {
+    fn entropy<S>(string: S,
+                  lang: Language) -> Result<Vec<u8>, Error> where S: Into<String> {
         let m = string.into();
 
         let mnemonic_type = MnemonicType::for_phrase(&*m)?;
