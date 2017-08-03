@@ -157,7 +157,7 @@ impl Mnemonic {
         let entropy_bits = key_type.entropy_bits();
         let checksum_bits = key_type.checksum_bits();
 
-		let word_map = Language::get_wordmap(lang);
+		let word_map = lang.get_wordmap();
 		
         let mut to_validate: BitVec = BitVec::new();
 
