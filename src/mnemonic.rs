@@ -224,6 +224,9 @@ impl Mnemonic {
         hex
     }
     
+    /// Get the original entropy used to create the Mnemonic as a hex string
+    ///
+    /// Note: this allocates a new String
     pub fn to_entropy_hex(&self) -> String {
 
         let entropy = Mnemonic::to_entropy(self.string.as_str(), self.lang).unwrap();
