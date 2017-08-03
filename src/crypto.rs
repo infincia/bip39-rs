@@ -10,7 +10,7 @@ static PBKDF2_ROUNDS: u32 = 2048;
 static PBKDF2_BYTES: usize = 64;
 
 
-pub fn sha256(input: &[u8]) -> Vec<u8> {
+pub(crate) fn sha256(input: &[u8]) -> Vec<u8> {
 
     static DIGEST_ALG: &'static digest::Algorithm = &digest::SHA256;
 
@@ -19,7 +19,7 @@ pub fn sha256(input: &[u8]) -> Vec<u8> {
     hash.as_ref().to_vec()
 }
 
-pub fn gen_random_bytes(byte_length: usize) -> Result<Vec<u8>, Error> {
+pub(crate) fn gen_random_bytes(byte_length: usize) -> Result<Vec<u8>, Error> {
 
     let mut rng = OsRng::new()?;
     let entropy = rng.gen_iter::<u8>().take(byte_length).collect::<Vec<u8>>();
@@ -27,7 +27,7 @@ pub fn gen_random_bytes(byte_length: usize) -> Result<Vec<u8>, Error> {
     Ok(entropy)
 }
 
-pub fn pbkdf2(input: &[u8],
+pub(crate) fn pbkdf2(input: &[u8],
               salt: String) -> Vec<u8> {
 
     let mut seed = vec![0u8; PBKDF2_BYTES];
