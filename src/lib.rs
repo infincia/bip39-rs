@@ -1,3 +1,10 @@
+//!
+//! This is a Rust implementation of the [bip39][bip39-standard] standard for Bitcoin HD wallet
+//! mnemonic phrases.
+//!
+//!
+//! [bip39-standard]: https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki
+//!
 #[macro_use] extern crate error_chain;
 #[macro_use] extern crate lazy_static;
 extern crate data_encoding;
