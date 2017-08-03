@@ -1,12 +1,3 @@
-//! The language determines which words will be used in a mnemonic phrase, but also indirectly
-//! determines the binary value of each word when a [`Mnemonic`][Mnemonic] is turned into a [`Seed`][Seed].
-//!
-//! These are not of much use right now, and may even be removed from the crate, as there is no
-//! official language specified by the standard except English.
-//!
-//! [Mnemonic]: ../mnemonic/struct.Mnemonic.html
-//! [Seed]: ../seed/struct.Seed.html
-
 use ::error::{Error, ErrorKind};
 use std::collections::HashMap;
 
@@ -43,9 +34,14 @@ mod lazy {
 	}
 }
 
-/// The language that should be used to generate or validate a [`Mnemonic`][Mnemonic].
+/// The language determines which words will be used in a mnemonic phrase, but also indirectly
+/// determines the binary value of each word when a [`Mnemonic`][Mnemonic] is turned into a [`Seed`][Seed].
+///
+/// These are not of much use right now, and may even be removed from the crate, as there is no
+/// official language specified by the standard except English.
 ///
 /// [Mnemonic]: ../mnemonic/struct.Mnemonic.html
+/// [Seed]: ../seed/struct.Seed.html
 #[derive(Debug, Clone, Copy)]
 pub enum Language {
     English
