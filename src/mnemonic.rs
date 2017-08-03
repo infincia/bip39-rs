@@ -41,6 +41,7 @@ impl Mnemonic {
     /// println!("phrase: {}", string);
     /// ```
     pub fn new<S>(key_type: &KeyType, lang: Language, password: S) -> Result<Mnemonic, Error>  where S: Into<String> {
+
         let entropy_bits = key_type.entropy_bits();
 
         let num_words = key_type.word_length();
@@ -120,6 +121,7 @@ impl Mnemonic {
     /// ```
     ///
     pub fn validate<S>(string: S, lang: &Language) -> Result<(), Error>  where S: Into<String> {
+
         Mnemonic::to_entropy(string, lang).and(Ok(()))
     }
     
@@ -142,6 +144,7 @@ impl Mnemonic {
     /// ```
     ///
     pub fn to_entropy<S>(string: S, lang: &Language) -> Result<Vec<u8>, Error>  where S: Into<String> {
+
         let m = string.into();
 
         let key_type = try!(KeyType::for_mnemonic(&*m));
@@ -189,6 +192,7 @@ impl Mnemonic {
     }
 
     pub fn to_hex(&self) -> String {
+
         let seed: &[u8] = self.seed.as_ref();
         let hex = hex::encode(seed);
 
@@ -196,6 +200,7 @@ impl Mnemonic {
     }
     
     pub fn to_entropy_hex(&self) -> String {
+
         let entropy = Mnemonic::to_entropy(self.string.as_str(), &self.lang).unwrap();
         let hex = hex::encode(entropy.as_slice());
 
@@ -203,6 +208,7 @@ impl Mnemonic {
     }
 
     fn generate_seed(entropy: &[u8], password: &str) -> Vec<u8> {
+
         let salt = format!("mnemonic{}", password);
         let seed = pbkdf2(entropy, salt);
 

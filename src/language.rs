@@ -6,6 +6,7 @@ mod lazy {
 	
 	/// lazy generation of the word list
 	fn gen_wordlist(lang_words: &str) -> Vec<String> {
+
 		lang_words.split_whitespace()
 			.map(|s| s.into())
 			.collect()
@@ -13,10 +14,12 @@ mod lazy {
 
 	/// lazy generation of the word map
 	fn gen_wordmap(word_list: &Vec<String>) -> HashMap<String, u16> {
+
 		let mut word_map: HashMap<String, u16> = HashMap::new();
 		for (i, item) in word_list.into_iter().enumerate() {
 			word_map.insert(item.to_owned(), i as u16);
 		}
+
 		word_map
 	}
 
@@ -49,6 +52,7 @@ impl Language {
     ///
     /// ```
     pub fn for_locale<S>(locale: S) -> Result<Language, Error> where S: Into<String>  {
+
         let l = locale.into();
 
         let lang = match &*l {
@@ -62,12 +66,14 @@ impl Language {
     }
     
     pub fn get_wordlist(&self) -> &'static Vec<String> {
+
 		match *self {
             Language::English => &lazy::VEC_BIP39_WORDLIST_ENGLISH
         }
 	}
 	
 	pub fn get_wordmap(&self) -> &'static HashMap<String, u16> {
+
 		match *self {
             Language::English => &lazy::HASHMAP_BIP39_WORDMAP_ENGLISH
         }

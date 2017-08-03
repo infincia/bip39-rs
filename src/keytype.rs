@@ -25,6 +25,7 @@ impl KeyType {
     /// let kt = KeyType::for_keysize(128).unwrap();
     /// ```
     pub fn for_keysize(size: usize) -> Result<KeyType, Error> {
+
         let kt = match size {
             128 => KeyType::Key128,
             160 => KeyType::Key160,
@@ -51,6 +52,7 @@ impl KeyType {
     /// let kt = KeyType::for_word_length(12).unwrap();
     /// ```
     pub fn for_word_length(length: usize) -> Result<KeyType, Error> {
+
         let kt = match length {
             12 => KeyType::Key128,
             15 => KeyType::Key160,
@@ -79,6 +81,7 @@ impl KeyType {
     /// let entropy_bits = key_type.entropy_bits();
     /// ```
     pub fn for_mnemonic<S>(mnemonic: S) -> Result<KeyType, Error> where S: Into<String> {
+
         let m = mnemonic.into();
 
         let v: Vec<&str> = m.split(" ").into_iter().collect();
@@ -109,6 +112,7 @@ impl KeyType {
     /// let total_bits = key_type.total_bits();
     /// ```
     pub fn total_bits(&self) -> usize {
+
         let total_bits: usize = match *self {
             KeyType::Key128 => 132,
             KeyType::Key160 => 165,
@@ -134,6 +138,7 @@ impl KeyType {
     /// let entropy_bits = key_type.entropy_bits();
     /// ```
     pub fn entropy_bits(&self) -> usize {
+
         let entropy_bits: usize = match *self {
             KeyType::Key128 => 128,
             KeyType::Key160 => 160,
@@ -159,6 +164,7 @@ impl KeyType {
     /// let checksum_bits = key_type.checksum_bits();
     /// ```
     pub fn checksum_bits(&self) -> usize {
+
         let checksum_bits: usize = match *self {
             KeyType::Key128 => 4,
             KeyType::Key160 => 5,
@@ -182,6 +188,7 @@ impl KeyType {
     /// let word_length = key_type.word_length();
     /// ```
     pub fn word_length(&self) -> usize {
+
         let word_length: usize = match *self {
             KeyType::Key128 => 12,
             KeyType::Key160 => 15,
