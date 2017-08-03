@@ -34,7 +34,7 @@ mod lazy {
 	}
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum Language {
     English
 }
