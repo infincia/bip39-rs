@@ -119,8 +119,8 @@ impl Mnemonic {
     /// }
     /// ```
     ///
-    pub fn validate<S>(mnemonic: S, lang: &Language) -> Result<(), Error>  where S: Into<String> {
-        Mnemonic::to_entropy(mnemonic, lang).and(Ok(()))
+    pub fn validate<S>(string: S, lang: &Language) -> Result<(), Error>  where S: Into<String> {
+        Mnemonic::to_entropy(string, lang).and(Ok(()))
     }
     
     /// Convert mnemonic word list to original entropy value.
@@ -141,8 +141,8 @@ impl Mnemonic {
     /// }
     /// ```
     ///
-    pub fn to_entropy<S>(mnemonic: S, lang: &Language) -> Result<Vec<u8>, Error>  where S: Into<String> {
-        let m = mnemonic.into();
+    pub fn to_entropy<S>(string: S, lang: &Language) -> Result<Vec<u8>, Error>  where S: Into<String> {
+        let m = string.into();
 
         let key_type = try!(KeyType::for_mnemonic(&*m));
         let entropy_bits = key_type.entropy_bits();
