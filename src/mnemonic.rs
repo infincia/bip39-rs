@@ -3,7 +3,7 @@ use bit_vec::BitVec;
 
 use data_encoding::hex;
 
-use ::crypto::{gen_random_bytes, sha256, pbkdf2};
+use ::crypto::{gen_random_bytes, sha256};
 use ::error::{Error, ErrorKind};
 use ::keytype::KeyType;
 use ::language::Language;
