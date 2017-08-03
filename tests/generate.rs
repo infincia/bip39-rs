@@ -85,4 +85,3 @@ fn generate_24_english() {
     assert!(words.len() == kt.word_length());
     assert!(b.seed.len() == 64);
 }
-
