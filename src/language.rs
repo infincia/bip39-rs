@@ -51,7 +51,7 @@ impl Language {
     /// let lang = Language::for_locale("en_US.UTF-8").unwrap();
     ///
     /// ```
-    pub fn for_locale<S>(locale: S) -> Result<Language, Error> where S: Into<String>  {
+	pub fn for_locale<S>(locale: S) -> Result<Language, Error> where S: Into<String> {
 
         let l = locale.into();
 
