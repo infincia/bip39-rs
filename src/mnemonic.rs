@@ -76,7 +76,7 @@ impl Mnemonic {
 
         let num_words = mnemonic_type.word_count();
 
-        let word_list = Language::get_wordlist(&lang);
+        let word_list = lang.get_wordlist();
 
         let entropy = gen_random_bytes(entropy_bits / 8)?;
 
