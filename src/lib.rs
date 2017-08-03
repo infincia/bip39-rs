@@ -10,10 +10,12 @@ pub mod error;
 pub mod keytype;
 pub mod language;
 pub mod util;
+pub mod seed;
 
 mod crypto;
 
 pub use language::Language;
 pub use mnemonic::Mnemonic;
 pub use keytype::KeyType;
+pub use seed::Seed;
 pub use error::Error;
