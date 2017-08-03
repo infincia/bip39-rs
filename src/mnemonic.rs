@@ -243,3 +243,9 @@ impl Mnemonic {
         hex
     }
 }
+
+impl AsRef<str> for Mnemonic {
+    fn as_ref(&self) -> &str {
+        self.as_str()
+    }
+}
