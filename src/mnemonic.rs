@@ -8,11 +8,12 @@ use ::error::{Error, ErrorKind};
 use ::keytype::KeyType;
 use ::language::Language;
 use ::util::bit_from_u16_as_u11;
+use ::seed::Seed;
 
 #[derive(Debug)]
 pub struct Mnemonic {
     string: String,
-    seed: Vec<u8>,
+    seed: Seed,
     lang: Language
 }
 
@@ -103,7 +104,7 @@ impl Mnemonic {
         let p = password.into();
         Mnemonic::validate(&*m, lang)?;
 
-        Ok(Mnemonic { string: (&m).clone(), seed: Mnemonic::generate_seed(&m.as_bytes(), &p), lang: lang})
+        Ok(Mnemonic { string: (&m).clone(), seed: Seed::generate(&m.as_bytes(), &p), lang: lang})
     }
 
     /// Validate a mnemonic phrase
@@ -209,11 +210,6 @@ impl Mnemonic {
         self.string.clone()
     }
 
-    pub fn get_seed(&self) -> &[u8] {
-        self.seed.as_ref()
-    }
-
-
     /// Get the [`Language`][Language]
     ///
     /// [Language]: ../language/struct.Language.html
@@ -221,14 +217,21 @@ impl Mnemonic {
         self.lang
     }
 
-    pub fn to_hex(&self) -> String {
-
-        let seed: &[u8] = self.seed.as_ref();
-        let hex = hex::encode(seed);
-
-        hex
+    /// Get a reference to the internal [`Seed`][Seed]
+    ///
+    /// [Seed]: ../seed/struct.Seed.html
+    pub fn as_seed(&self) -> &Seed {
+        &self.seed
     }
-    
+
+    /// Get an owned [`Seed`][Seed].
+    ///
+    /// Note: this clones the internal [`Seed`][Seed] instance
+    /// [Seed]: ../seed/struct.Seed.html
+    pub fn get_seed(&self) -> Seed {
+        self.seed.to_owned()
+    }
+
     /// Get the original entropy used to create the Mnemonic as a hex string
     ///
     /// Note: this allocates a new String
@@ -238,14 +241,5 @@ impl Mnemonic {
         let hex = hex::encode(entropy.as_slice());
 
         hex
-    }
-
-    fn generate_seed(entropy: &[u8],
-                     password: &str) -> Vec<u8> {
-
-        let salt = format!("mnemonic{}", password);
-        let seed = pbkdf2(entropy, salt);
-
-        seed
     }
 }
