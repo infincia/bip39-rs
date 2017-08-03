@@ -212,6 +212,10 @@ impl Mnemonic {
         self.seed.as_ref()
     }
 
+
+    /// Get the [`Language`][Language]
+    ///
+    /// [Language]: ../language/struct.Language.html
     pub fn get_language(&self) -> Language {
         self.lang
     }
