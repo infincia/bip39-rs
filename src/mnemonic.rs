@@ -19,10 +19,9 @@ pub struct Mnemonic {
 
 impl Mnemonic {
 
-    /// Generates a new `Mnemonic` struct
+    /// Generates a new `Mnemonic`
     ///
-    /// When returned, the struct will be filled in with the phrase and the seed value
-    /// as 64 bytes raw
+    /// When returned, the struct will be filled in with the phrase as a string, and the [`Seed`][Seed].
     ///
     ///
     /// # Example
@@ -43,6 +42,7 @@ impl Mnemonic {
     /// let seed_hex: &str = seed.as_hex();
     /// println!("phrase: {}", phrase);
     /// ```
+    /// [Seed]: ../seed/struct.Seed.html
     pub fn new<S>(key_type: KeyType,
                   lang: Language,
                   password: S) -> Result<Mnemonic, Error> where S: Into<String> {
@@ -83,7 +83,7 @@ impl Mnemonic {
         Mnemonic::from_string(string, lang, password.into())
     }
 
-    /// Create a `Mnemonic` struct from an existing mnemonic phrase
+    /// Create a [`Mnemonic`][Mnemonic] struct from an existing mnemonic phrase
     ///
     /// The phrase supplied will be checked for word length and validated according to the checksum
     /// specified in BIP0039
@@ -98,6 +98,7 @@ impl Mnemonic {
     /// let b = Mnemonic::from_string(test_mnemonic, Language::English, "").unwrap();
     /// ```
     ///
+    /// [Mnemonic]: ../mnemonic/struct.Mnemonic.html
     pub fn from_string<S>(string: S,
                           lang: Language,
                           password: S) -> Result<Mnemonic, Error> where S: Into<String> {
