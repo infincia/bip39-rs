@@ -47,7 +47,10 @@ impl Mnemonic {
 
     /// Generates a new `Mnemonic`
     ///
-    /// When returned, the struct will be filled in with the phrase as a string, and the [`Seed`][Seed].
+    /// Can be used to get the [`Seed`][Seed] using [`Mnemonic::get_seed()`][Mnemonic::get_seed()].
+    ///
+    /// Can also be used to get the original entropy value. Use [`Mnemonic::as_entropy()`][Mnemonic::as_entropy()] for a slice, or
+    /// [Mnemonic::get_entropy()][Mnemonic::get_entropy()] for an owned `Vec<u8>`.
     ///
     ///
     /// # Example
@@ -69,6 +72,9 @@ impl Mnemonic {
     /// println!("phrase: {}", phrase);
     /// ```
     /// [Seed]: ../seed/struct.Seed.html
+    /// [Mnemonic::get_seed()]: ./mnemonic/struct.Mnemonic.html#method.get_seed
+    /// [Mnemonic::as_entropy()]: ./mnemonic/struct.Mnemonic.html#method.as_entropy
+    /// [Mnemonic::get_entropy()]: ./mnemonic/struct.Mnemonic.html#method.get_entropy
     pub fn new<S>(mnemonic_type: MnemonicType,
                   lang: Language,
                   password: S) -> Result<Mnemonic, Error> where S: Into<String> {
@@ -109,7 +115,7 @@ impl Mnemonic {
         Mnemonic::from_string(string, lang, password.into())
     }
 
-    /// Create a [`Mnemonic`][Mnemonic] struct from an existing mnemonic phrase
+    /// Create a [`Mnemonic`][Mnemonic] from an existing mnemonic phrase
     ///
     /// The phrase supplied will be checked for word length and validated according to the checksum
     /// specified in BIP0039
