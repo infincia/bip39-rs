@@ -11,7 +11,7 @@ fn generate_12_english() {
         Ok(b) => b,
         Err(_) => { assert!(false); return }
     };
-    let phrase = b.mnemonic;
+    let phrase = b.string;
     let words: Vec<&str> = phrase.split(" ").into_iter().collect();
 
     assert!(words.len() == 12);
@@ -27,7 +27,7 @@ fn generate_15_english() {
         Ok(b) => b,
         Err(_) => { assert!(false); return }
     };
-    let phrase = b.mnemonic;
+    let phrase = b.string;
     let words: Vec<&str> = phrase.split(" ").into_iter().collect();
 
     assert!(words.len() == 15);
@@ -43,7 +43,7 @@ fn generate_18_english() {
         Ok(b) => b,
         Err(_) => { assert!(false); return }
     };
-    let phrase = b.mnemonic;
+    let phrase = b.string;
     let words: Vec<&str> = phrase.split(" ").into_iter().collect();
 
     assert!(words.len() == 18);
@@ -61,7 +61,7 @@ fn generate_21_english() {
         Err(_) => { assert!(false); return }
     };
 
-    let phrase = b.mnemonic;
+    let phrase = b.string;
     let words: Vec<&str> = phrase.split(" ").into_iter().collect();
 
     assert!(words.len() == 21);
@@ -78,7 +78,7 @@ fn generate_24_english() {
         Err(_) => { assert!(false); return }
     };
 
-    let phrase = b.mnemonic;
+    let phrase = b.string;
     let words: Vec<&str> = phrase.split(" ").into_iter().collect();
 
     assert!(words.len() == 24);

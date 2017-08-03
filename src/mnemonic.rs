@@ -11,7 +11,7 @@ use ::util::bit_from_u16_as_u11;
 
 #[derive(Debug)]
 pub struct Mnemonic {
-    pub mnemonic: String,
+    pub string: String,
     pub seed: Vec<u8>,
     pub lang: Language
 }
@@ -36,9 +36,9 @@ impl Mnemonic {
     ///     Err(e) => { println!("e: {}", e); return }
     /// };
     ///
-    /// let phrase = &bip39.mnemonic;
+    /// let phrase = &bip39.string;
     /// let seed = &bip39.seed;
-    /// println!("phrase: {}", phrase);
+    /// println!("phrase: {}", string);
     /// ```
     pub fn new<S>(key_type: &KeyType, lang: Language, password: S) -> Result<Mnemonic, Error>  where S: Into<String> {
         let entropy_bits = key_type.entropy_bits();
@@ -98,7 +98,7 @@ impl Mnemonic {
         let p = password.into();
         try!(Mnemonic::validate(&*m, &lang));
 
-        Ok(Mnemonic { mnemonic: (&m).clone(), seed: Mnemonic::generate_seed(&m.as_bytes(), &p), lang: lang})
+        Ok(Mnemonic { string: (&m).clone(), seed: Mnemonic::generate_seed(&m.as_bytes(), &p), lang: lang})
     }
 
     /// Validate a mnemonic phrase
@@ -196,7 +196,7 @@ impl Mnemonic {
     }
     
     pub fn to_entropy_hex(&self) -> String {
-        let entropy = Mnemonic::to_entropy(self.mnemonic.as_str(), &self.lang).unwrap();
+        let entropy = Mnemonic::to_entropy(self.string.as_str(), &self.lang).unwrap();
         let hex = hex::encode(entropy.as_slice());
 
         hex
