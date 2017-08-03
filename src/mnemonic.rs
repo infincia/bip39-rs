@@ -11,9 +11,9 @@ use ::util::bit_from_u16_as_u11;
 
 #[derive(Debug)]
 pub struct Mnemonic {
-    pub string: String,
-    pub seed: Vec<u8>,
-    pub lang: Language
+    string: String,
+    seed: Vec<u8>,
+    lang: Language
 }
 
 impl Mnemonic {
