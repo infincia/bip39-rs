@@ -2,7 +2,7 @@ use ::crypto::{pbkdf2};
 
 use data_encoding::hex;
 
-/// The secret value used to derive HD wallet addresses from a mnemonic phrase.
+/// The secret value used to derive HD wallet addresses from a [`Mnemonic`][Mnemonic] phrase.
 ///
 /// It cannot be created directly, you must create a [`Mnemonic`][Mnemonic] instance and get the seed from
 /// it with [`Mnemonic::get_seed()`][Mnemonic::get_seed()].
