@@ -120,7 +120,7 @@ impl Mnemonic {
     ///
     /// let test_mnemonic = "park remain person kitchen mule spell knee armed position rail grid ankle";
     ///
-    /// let b = Mnemonic::from_string(test_mnemonic, Language::English, "").unwrap();
+    /// let mnemonic = Mnemonic::from_string(test_mnemonic, Language::English, "").unwrap();
     /// ```
     ///
     /// [Mnemonic]: ../mnemonic/struct.Mnemonic.html
