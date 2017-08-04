@@ -35,7 +35,7 @@ use ::seed::Seed;
 /// [Seed::as_bytes()]: ./seed/struct.Seed.html#method.as_bytes
 /// [Seed::as_hex()]: ./seed/struct.Seed.html#method.as_hex
 ///
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Mnemonic {
     string: String,
     seed: Seed,

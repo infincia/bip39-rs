@@ -22,7 +22,7 @@ use data_encoding::hex;
 /// [Seed::as_bytes()]: ../seed/struct.Seed.html#method.as_bytes
 /// [Seed::as_hex()]: ../seed/struct.Seed.html#method.as_hex
 ///
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Seed {
     bytes: Vec<u8>,
     hex: String,
