@@ -58,3 +58,4 @@ pub use mnemonic::Mnemonic;
 pub use mnemonic_type::MnemonicType;
 pub use seed::Seed;
 pub use error::Error;
+pub use error::ErrorKind;
