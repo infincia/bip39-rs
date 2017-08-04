@@ -227,3 +227,9 @@ impl MnemonicType {
         word_count
     }
 }
+
+impl Default for MnemonicType {
+    fn default() -> MnemonicType {
+        MnemonicType::Type12Words
+    }
+}

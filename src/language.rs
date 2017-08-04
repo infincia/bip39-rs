@@ -96,3 +96,9 @@ impl Language {
         }
 	}
 }
+
+impl Default for Language {
+	fn default() -> Language {
+		Language::English
+	}
+}
