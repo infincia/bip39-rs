@@ -81,14 +81,35 @@ impl Mnemonic {
 
         let entropy_bits = mnemonic_type.entropy_bits();
 
+        let entropy = gen_random_bytes(entropy_bits / 8)?;
+
+        Mnemonic::from_entropy(&entropy, mnemonic_type, lang, password)
+    }
+
+    /// Create a [`Mnemonic`][Mnemonic] from generated entropy
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use bip39::{Mnemonic, MnemonicType, Language};
+    ///
+    /// let entropy = &[0x33, 0xE4, 0x6B, 0xB1, 0x3A, 0x74, 0x6E, 0xA4, 0x1C, 0xDD, 0xE4, 0x5C, 0x90, 0x84, 0x6A, 0x79];
+    /// let mnemonic = Mnemonic::from_entropy(entropy, MnemonicType::for_key_size(128).unwrap(), Language::English, "").unwrap();
+    ///
+    /// assert_eq!("crop cash unable insane eight faith inflict route frame loud box vibrant", mnemonic.as_str());
+    /// ```
+    ///
+    /// [Mnemonic]: ../mnemonic/struct.Mnemonic.html
+    pub fn from_entropy<S>(entropy: &[u8],
+                           mnemonic_type: MnemonicType,
+                           lang: Language,
+                           password: S) -> Result<Mnemonic, Error> where S: Into<String> {
+
         let num_words = mnemonic_type.word_count();
 
         let word_list = lang.get_wordlist();
 
-        let entropy = gen_random_bytes(entropy_bits / 8)?;
-
-
-        let entropy_hash = sha256(entropy.as_ref());
+        let entropy_hash = sha256(entropy);
 
         // we put both the entropy and the hash of the entropy (in that order) into a single vec
         // and then just read 11 bits at a time out of the entire thing `num_words` times. We
@@ -102,7 +123,7 @@ impl Mnemonic {
         let mut combined = Vec::from(entropy);
         combined.extend(&entropy_hash);
 
-        let mut reader = BitReader::new(combined.as_ref());
+        let mut reader = BitReader::new(&combined);
 
         let mut words: Vec<&str> = Vec::new();
         for _ in 0..num_words {
@@ -113,6 +134,28 @@ impl Mnemonic {
         let string = words.join(" ");
 
         Mnemonic::from_string(string, lang, password.into())
+    }
+
+    /// Create a [`Mnemonic`][Mnemonic] from generated entropy hexadecimal representation
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use bip39::{Mnemonic, MnemonicType, Language};
+    ///
+    /// let entropy = "33E46BB13A746EA41CDDE45C90846A79";
+    /// let mnemonic = Mnemonic::from_entropy_hex(entropy, MnemonicType::for_key_size(128).unwrap(), Language::English, "").unwrap();
+    ///
+    /// assert_eq!("crop cash unable insane eight faith inflict route frame loud box vibrant", mnemonic.as_str());
+    /// ```
+    ///
+    /// [Mnemonic]: ../mnemonic/struct.Mnemonic.html
+    pub fn from_entropy_hex<S>(entropy: &str,
+                           mnemonic_type: MnemonicType,
+                           lang: Language,
+                           password: S) -> Result<Mnemonic, Error> where S: Into<String> {
+
+        Mnemonic::from_entropy(&hex::decode(entropy.as_ref())?, mnemonic_type, lang, password)
     }
 
     /// Create a [`Mnemonic`][Mnemonic] from an existing mnemonic phrase
@@ -188,7 +231,6 @@ impl Mnemonic {
     /// Only intended for internal use, as returning a `Vec<u8>` that looks a bit like it could be
     /// used as the seed is likely to cause problems for someone eventually. All the other functions
     /// that return something like that are explicit about what it is and what to use it for.
-    ///
     fn entropy<S>(string: S,
                   lang: Language) -> Result<Vec<u8>, Error> where S: Into<String> {
         let m = string.into();
@@ -197,8 +239,8 @@ impl Mnemonic {
         let entropy_bits = mnemonic_type.entropy_bits();
         let checksum_bits = mnemonic_type.checksum_bits();
 
-		let word_map = lang.get_wordmap();
-		
+        let word_map = lang.get_wordmap();
+
         let mut to_validate: BitVec = BitVec::new();
 
         for word in m.split(" ").into_iter() {
@@ -219,9 +261,9 @@ impl Mnemonic {
         let mut entropy_to_validate = BitVec::new();
         &entropy_to_validate.extend((&to_validate).into_iter().take(entropy_bits));
         assert!(entropy_to_validate.len() == entropy_bits, "invalid entropy size");
-		
-		let entropy = entropy_to_validate.to_bytes();
-		
+
+        let entropy = entropy_to_validate.to_bytes();
+
         let hash = sha256(entropy.as_ref());
 
         let entropy_hash_to_validate_bits = BitVec::from_bytes(hash.as_ref());
