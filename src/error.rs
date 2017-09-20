@@ -1,3 +1,4 @@
+use mnemonic_type::MnemonicType;
 
 error_chain! {
     foreign_links {
@@ -21,6 +22,10 @@ error_chain! {
         InvalidWordLength {
             description("invalid number of words in phrase")
             display("Invalid number of words in phrase")
+        }
+        InvalidEntropyLength(entropy_length_bits: usize, mnemonic_type: MnemonicType) {
+            description("invalid entropy length for mnemonic type")
+            display("Invalid entropy length {}bits for mnemonic type {}", entropy_length_bits, mnemonic_type)
         }
         LanguageUnavailable {
             description("wrapping key failed")
