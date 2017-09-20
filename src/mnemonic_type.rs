@@ -1,4 +1,5 @@
 use ::error::{Error, ErrorKind};
+use std::fmt;
 
 /// Determines the number of words that will be present in a [`Mnemonic`][Mnemonic] phrase
 ///
@@ -231,5 +232,11 @@ impl MnemonicType {
 impl Default for MnemonicType {
     fn default() -> MnemonicType {
         MnemonicType::Type12Words
+    }
+}
+
+impl fmt::Display for MnemonicType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} words ({}bits)", self.word_count(), self.entropy_bits())
     }
 }
