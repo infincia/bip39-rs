@@ -104,6 +104,11 @@ impl Mnemonic {
                            mnemonic_type: MnemonicType,
                            lang: Language,
                            password: S) -> Result<Mnemonic, Error> where S: Into<String> {
+        let entropy_length_bits = entropy.len() * 8;
+
+        if entropy_length_bits != mnemonic_type.entropy_bits() {
+            return Err(ErrorKind::InvalidEntropyLength(entropy_length_bits, mnemonic_type).into())
+        }
 
         let num_words = mnemonic_type.word_count();
 
