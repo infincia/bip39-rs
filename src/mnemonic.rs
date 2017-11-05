@@ -1,7 +1,7 @@
 use bitreader::BitReader;
 use bit_vec::BitVec;
 
-use data_encoding::hex;
+use data_encoding::HEXUPPER;
 
 use ::crypto::{gen_random_bytes, sha256};
 use ::error::{Error, ErrorKind};
@@ -160,7 +160,7 @@ impl Mnemonic {
                            lang: Language,
                            password: S) -> Result<Mnemonic, Error> where S: Into<String> {
 
-        Mnemonic::from_entropy(&hex::decode(entropy.as_ref())?, mnemonic_type, lang, password)
+        Mnemonic::from_entropy(&HEXUPPER.decode(entropy.as_ref())?, mnemonic_type, lang, password)
     }
 
     /// Create a [`Mnemonic`][Mnemonic] from an existing mnemonic phrase
@@ -342,7 +342,7 @@ impl Mnemonic {
     /// Note: this allocates a new String
     pub fn get_entropy_hex(&self) -> String {
 
-        let hex = hex::encode(self.as_entropy());
+        let hex = HEXUPPER.encode(self.as_entropy());
 
         hex
     }
