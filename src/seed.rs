@@ -1,6 +1,6 @@
 use ::crypto::{pbkdf2};
 
-use data_encoding::hex;
+use data_encoding::HEXUPPER;
 
 /// The secret value used to derive HD wallet addresses from a [`Mnemonic`][Mnemonic] phrase.
 ///
@@ -40,7 +40,7 @@ impl Seed {
 
         let salt = format!("mnemonic{}", password);
         let seed_value = pbkdf2(entropy, salt);
-        let hex = hex::encode(seed_value.as_ref());
+        let hex = HEXUPPER.encode(seed_value.as_ref());
 
         Seed {
             bytes: seed_value,
