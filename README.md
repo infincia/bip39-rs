@@ -4,7 +4,11 @@
 
 A Rust implementation of [BIP0039](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki)
 
-[Documentation](https://docs.rs/bip39)
+## Changes
+
+See the [changelog](./CHANGELOG.md) file, or the Github releases for specific tags.
+
+## [Documentation](https://docs.rs/bip39)
 
 Add `bip39` to your Cargo file, and then refer to the documentation 
 for use.
