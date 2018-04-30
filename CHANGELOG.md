@@ -1,3 +1,14 @@
+## v0.5.1
+
+No source changes, minor version bump due to the addition of license files, which are 
+included when packaging a crate.
+
+The license specified in the Cargo manifest is still correct.
+
+### Changes
+
+* Add license files (#12) [c9beb96]
+
 ## v0.5.0
 
 Should be source compatible with v0.4.0, only the crate dependencies have changed.
