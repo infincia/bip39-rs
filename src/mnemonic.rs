@@ -74,9 +74,9 @@ impl Mnemonic {
     /// [Mnemonic::get_seed()]: ./mnemonic/struct.Mnemonic.html#method.get_seed
     /// [Mnemonic::as_entropy()]: ./mnemonic/struct.Mnemonic.html#method.as_entropy
     /// [Mnemonic::get_entropy()]: ./mnemonic/struct.Mnemonic.html#method.get_entropy
-    pub fn new<S>(mnemonic_type: MnemonicType,
-                  lang: Language,
-                  password: S) -> Result<Mnemonic> where S: Into<String> {
+    pub fn new(mnemonic_type: MnemonicType,
+               lang: Language,
+               password: &str) -> Result<Mnemonic> {
 
         let entropy_bits = mnemonic_type.entropy_bits();
 
@@ -99,10 +99,10 @@ impl Mnemonic {
     /// ```
     ///
     /// [Mnemonic]: ../mnemonic/struct.Mnemonic.html
-    pub fn from_entropy<S>(entropy: &[u8],
-                           mnemonic_type: MnemonicType,
-                           lang: Language,
-                           password: S) -> Result<Mnemonic> where S: Into<String> {
+    pub fn from_entropy(entropy: &[u8],
+                        mnemonic_type: MnemonicType,
+                        lang: Language,
+                        password: &str) -> Result<Mnemonic> {
         let entropy_length_bits = entropy.len() * 8;
 
         if entropy_length_bits != mnemonic_type.entropy_bits() {
@@ -123,20 +123,39 @@ impl Mnemonic {
         //
         // ... and so on. It grabs the entropy and then the right number of hash bits and no more.
 
-        let mut combined = entropy.to_vec();
-        combined.extend(entropy_hash.as_ref());
+        let mut combined = Vec::with_capacity(entropy.len() + 1);
 
-        let mut reader = BitReader::new(&combined);
-        let mut words: Vec<&str> = Vec::with_capacity(word_count);
+        combined.extend_from_slice(entropy);
+        combined.push(entropy_hash.as_ref()[0]);
 
-        for _ in 0..word_count {
+        let entropy = combined;
+
+        let phrase = {
+            let mut reader = BitReader::new(&entropy);
+            let mut phrase = String::with_capacity(128);
+
             let n = reader.read_u16(11).expect("We are guaranteed to have enough bits to read; qed");
-            words.push(word_list[n as usize]);
-        }
+            phrase.push_str(word_list[n as usize]);
 
-        let string = words.join(" ");
+            for _ in 1..word_count {
+                let n = reader.read_u16(11).expect("We are guaranteed to have enough bits to read; qed");
+                phrase.push(' ');
+                phrase.push_str(word_list[n as usize]);
+            }
 
-        Mnemonic::from_string(string, lang, password.into())
+            phrase
+        };
+
+        let seed = Seed::generate(phrase.as_bytes(), password);
+
+        let mnemonic = Mnemonic {
+            phrase,
+            seed,
+            lang,
+            entropy
+        };
+
+        Ok(mnemonic)
     }
 
     /// Create a [`Mnemonic`][Mnemonic] from generated entropy hexadecimal representation
@@ -153,10 +172,10 @@ impl Mnemonic {
     /// ```
     ///
     /// [Mnemonic]: ../mnemonic/struct.Mnemonic.html
-    pub fn from_entropy_hex<S>(entropy: &str,
+    pub fn from_entropy_hex(entropy: &str,
                            mnemonic_type: MnemonicType,
                            lang: Language,
-                           password: S) -> Result<Mnemonic> where S: Into<String> {
+                           password: &str) -> Result<Mnemonic> {
 
         Mnemonic::from_entropy(&HEXUPPER.decode(entropy.as_ref())?, mnemonic_type, lang, password)
     }
