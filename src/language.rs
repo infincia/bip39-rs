@@ -1,37 +1,30 @@
-use ::error::{Error, ErrorKind};
+use ::error::{ErrorKind, Result};
 use std::collections::HashMap;
 
 mod lazy {
-	use std::collections::HashMap;
-	
-	/// lazy generation of the word list
-	fn gen_wordlist(lang_words: &str) -> Vec<String> {
+    use super::HashMap;
 
-		lang_words.split_whitespace()
-			.map(|s| s.into())
-			.collect()
-	}
+    /// lazy generation of the word list
+    fn gen_wordlist(lang_words: &str) -> Vec<&str> {
+        lang_words.split_whitespace().collect()
+    }
 
-	/// lazy generation of the word map
-	fn gen_wordmap(word_list: &Vec<String>) -> HashMap<String, u16> {
+    /// lazy generation of the word map
+    fn gen_wordmap(wordlist: &[&'static str]) -> HashMap<&'static str, u16> {
+        wordlist
+            .iter()
+            .enumerate()
+            .map(|(i, item)| (*item, i as u16))
+            .collect()
+    }
 
-		let mut word_map: HashMap<String, u16> = HashMap::new();
-		for (i, item) in word_list.into_iter().enumerate() {
-			word_map.insert(item.to_owned(), i as u16);
-		}
+    static BIP39_WORDLIST_ENGLISH: &str = include_str!("bip39_english.txt");
 
-		word_map
-	}
+    lazy_static! {
+        pub static ref VEC_BIP39_WORDLIST_ENGLISH: Vec<&'static str> = gen_wordlist(BIP39_WORDLIST_ENGLISH);
 
-	static BIP39_WORDLIST_ENGLISH: &'static str = include_str!("bip39_english.txt"); 
-
-	lazy_static! {
-		pub static ref VEC_BIP39_WORDLIST_ENGLISH: Vec<String> = { gen_wordlist(BIP39_WORDLIST_ENGLISH) };
-	}
-
-	lazy_static! {
-		pub static ref HASHMAP_BIP39_WORDMAP_ENGLISH: HashMap<String, u16> = { gen_wordmap(&VEC_BIP39_WORDLIST_ENGLISH) };
-	}
+        pub static ref HASHMAP_BIP39_WORDMAP_ENGLISH: HashMap<&'static str, u16> = gen_wordmap(&VEC_BIP39_WORDLIST_ENGLISH);
+    }
 }
 
 /// The language determines which words will be used in a mnemonic phrase, but also indirectly
@@ -60,45 +53,42 @@ impl Language {
     ///
     /// ```
     /// [Language]: ../language/struct.Language.html
-	pub fn for_locale<S>(locale: S) -> Result<Language, Error> where S: Into<String> {
-
-        let l = locale.into();
-
-        let lang = match &*l {
+    pub fn for_locale(locale: &str) -> Result<Language> {
+        let lang = match locale {
             "en_US.UTF-8" => Language::English,
             "en_GB.UTF-8" => Language::English,
 
-            _ => { return Err(ErrorKind::LanguageUnavailable.into()) }
+            _ => bail!(ErrorKind::LanguageUnavailable)
         };
 
         Ok(lang)
     }
 
-	/// Get the word list for this language
-    pub fn get_wordlist(&self) -> &'static Vec<String> {
+    /// Get the word list for this language
+    pub fn get_wordlist(&self) -> &'static [&'static str] {
 
-		match *self {
-            Language::English => &lazy::VEC_BIP39_WORDLIST_ENGLISH
+        match *self {
+            Language::English => &*lazy::VEC_BIP39_WORDLIST_ENGLISH
         }
-	}
+    }
 
-	/// Get a [`HashMap`][HashMap] that allows word -> index lookups in the word list
-	///
-	/// The index of an individual word in the word list is used as the binary value of that word
-	/// when the phrase is turned into a [`Seed`][Seed].
-	///
-	/// [HashMap]: https://doc.rust-lang.org/std/collections/struct.HashMap.html
-	/// [Seed]: ../seed/struct.Seed.html
-	pub fn get_wordmap(&self) -> &'static HashMap<String, u16> {
+    /// Get a [`HashMap`][HashMap] that allows word -> index lookups in the word list
+    ///
+    /// The index of an individual word in the word list is used as the binary value of that word
+    /// when the phrase is turned into a [`Seed`][Seed].
+    ///
+    /// [HashMap]: https://doc.rust-lang.org/std/collections/struct.HashMap.html
+    /// [Seed]: ../seed/struct.Seed.html
+    pub fn get_wordmap(&self) -> &'static HashMap<&'static str, u16> {
 
-		match *self {
-            Language::English => &lazy::HASHMAP_BIP39_WORDMAP_ENGLISH
+        match *self {
+            Language::English => &*lazy::HASHMAP_BIP39_WORDMAP_ENGLISH
         }
-	}
+    }
 }
 
 impl Default for Language {
-	fn default() -> Language {
-		Language::English
-	}
+    fn default() -> Language {
+        Language::English
+    }
 }

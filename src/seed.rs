@@ -1,4 +1,4 @@
-use ::crypto::{pbkdf2};
+use ::crypto::pbkdf2;
 
 use data_encoding::HEXUPPER;
 
@@ -26,7 +26,6 @@ use data_encoding::HEXUPPER;
 pub struct Seed {
     bytes: Vec<u8>,
     hex: String,
-
 }
 
 impl Seed {
@@ -35,12 +34,11 @@ impl Seed {
     ///
     /// Cannot be used outside the crate, in order to guarantee correctness
     /// [Mnemonic]: ../mnemonic/struct.Mnemonic.html
-    pub(crate) fn generate(entropy: &[u8],
-                           password: &str) -> Seed {
+    pub(crate) fn generate(entropy: &[u8], password: &str) -> Seed {
 
         let salt = format!("mnemonic{}", password);
-        let seed_value = pbkdf2(entropy, salt);
-        let hex = HEXUPPER.encode(seed_value.as_ref());
+        let seed_value = pbkdf2(entropy, &salt);
+        let hex = HEXUPPER.encode(&seed_value);
 
         Seed {
             bytes: seed_value,
@@ -83,7 +81,7 @@ impl AsRef<[u8]> for Seed {
 
 impl AsRef<str> for Seed {
     fn as_ref(&self) -> &str {
-        
+
         self.as_hex()
     }
 }

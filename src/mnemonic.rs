@@ -1,13 +1,12 @@
 use bitreader::BitReader;
-use bit_vec::BitVec;
 
 use data_encoding::HEXUPPER;
 
+use util::{truncate, checksum, BitWriter};
 use ::crypto::{gen_random_bytes, sha256};
-use ::error::{Error, ErrorKind};
+use ::error::{ErrorKind, Result};
 use ::mnemonic_type::MnemonicType;
 use ::language::Language;
-use ::util::bit_from_u16_as_u11;
 use ::seed::Seed;
 
 /// The primary type in this crate, most tasks require creating or using one.
@@ -37,7 +36,7 @@ use ::seed::Seed;
 ///
 #[derive(Debug, Clone)]
 pub struct Mnemonic {
-    string: String,
+    phrase: String,
     seed: Seed,
     lang: Language,
     entropy: Vec<u8>,
@@ -75,9 +74,9 @@ impl Mnemonic {
     /// [Mnemonic::get_seed()]: ./mnemonic/struct.Mnemonic.html#method.get_seed
     /// [Mnemonic::as_entropy()]: ./mnemonic/struct.Mnemonic.html#method.as_entropy
     /// [Mnemonic::get_entropy()]: ./mnemonic/struct.Mnemonic.html#method.get_entropy
-    pub fn new<S>(mnemonic_type: MnemonicType,
-                  lang: Language,
-                  password: S) -> Result<Mnemonic, Error> where S: Into<String> {
+    pub fn new(mnemonic_type: MnemonicType,
+               lang: Language,
+               password: &str) -> Result<Mnemonic> {
 
         let entropy_bits = mnemonic_type.entropy_bits();
 
@@ -100,18 +99,17 @@ impl Mnemonic {
     /// ```
     ///
     /// [Mnemonic]: ../mnemonic/struct.Mnemonic.html
-    pub fn from_entropy<S>(entropy: &[u8],
-                           mnemonic_type: MnemonicType,
-                           lang: Language,
-                           password: S) -> Result<Mnemonic, Error> where S: Into<String> {
+    pub fn from_entropy(entropy: &[u8],
+                        mnemonic_type: MnemonicType,
+                        lang: Language,
+                        password: &str) -> Result<Mnemonic> {
         let entropy_length_bits = entropy.len() * 8;
 
         if entropy_length_bits != mnemonic_type.entropy_bits() {
-            return Err(ErrorKind::InvalidEntropyLength(entropy_length_bits, mnemonic_type).into())
+            bail!(ErrorKind::InvalidEntropyLength(entropy_length_bits, mnemonic_type));
         }
 
-        let num_words = mnemonic_type.word_count();
-
+        let word_count = mnemonic_type.word_count();
         let word_list = lang.get_wordlist();
 
         let entropy_hash = sha256(entropy);
@@ -125,20 +123,38 @@ impl Mnemonic {
         //
         // ... and so on. It grabs the entropy and then the right number of hash bits and no more.
 
-        let mut combined = Vec::from(entropy);
-        combined.extend(&entropy_hash);
+        let mut combined = Vec::with_capacity(entropy.len() + 1);
 
-        let mut reader = BitReader::new(&combined);
+        combined.extend_from_slice(entropy);
+        combined.push(entropy_hash.as_ref()[0]);
 
-        let mut words: Vec<&str> = Vec::new();
-        for _ in 0..num_words {
-            let n = reader.read_u16(11);
-            words.push(word_list[n.unwrap() as usize].as_ref());
-        }
+        let phrase = {
+            let mut reader = BitReader::new(&combined);
+            let mut phrase = String::with_capacity(128);
 
-        let string = words.join(" ");
+            let n = reader.read_u16(11).expect("We are guaranteed to have enough bits to read; qed");
+            phrase.push_str(word_list[n as usize]);
 
-        Mnemonic::from_string(string, lang, password.into())
+            for _ in 1..word_count {
+                let n = reader.read_u16(11).expect("We are guaranteed to have enough bits to read; qed");
+                phrase.push(' ');
+                phrase.push_str(word_list[n as usize]);
+            }
+
+            phrase
+        };
+
+        let entropy = truncate(combined, entropy.len());
+        let seed = Seed::generate(phrase.as_bytes(), password);
+
+        let mnemonic = Mnemonic {
+            phrase,
+            seed,
+            lang,
+            entropy
+        };
+
+        Ok(mnemonic)
     }
 
     /// Create a [`Mnemonic`][Mnemonic] from generated entropy hexadecimal representation
@@ -155,10 +171,10 @@ impl Mnemonic {
     /// ```
     ///
     /// [Mnemonic]: ../mnemonic/struct.Mnemonic.html
-    pub fn from_entropy_hex<S>(entropy: &str,
+    pub fn from_entropy_hex(entropy: &str,
                            mnemonic_type: MnemonicType,
                            lang: Language,
-                           password: S) -> Result<Mnemonic, Error> where S: Into<String> {
+                           password: &str) -> Result<Mnemonic> {
 
         Mnemonic::from_entropy(&HEXUPPER.decode(entropy.as_ref())?, mnemonic_type, lang, password)
     }
@@ -179,25 +195,25 @@ impl Mnemonic {
     /// ```
     ///
     /// [Mnemonic]: ../mnemonic/struct.Mnemonic.html
-    pub fn from_string<S>(string: S,
+    pub fn from_string<S>(phrase: S,
                           lang: Language,
-                          password: S) -> Result<Mnemonic, Error> where S: Into<String> {
+                          password: S) -> Result<Mnemonic> where S: Into<String> {
 
-        let m = string.into();
-        let p = password.into();
+        let phrase = phrase.into();
+        let password = password.into();
 
         // this also validates the checksum and phrase length before returning the entropy so we
         // can store it. We don't use the validate function here to avoid having a public API that
         // takes a phrase string and returns the entropy directly. See the Mnemonic::entropy()
         // docs for the reason.
-        let entropy = Mnemonic::entropy(&*m, lang)?;
-        let seed = Seed::generate(&m.as_bytes(), &p);
+        let entropy = Mnemonic::entropy(&phrase, lang)?;
+        let seed = Seed::generate(phrase.as_bytes(), &password);
 
         let mnemonic = Mnemonic {
-            string: (&m).clone(),
-            seed: seed,
-            lang: lang,
-            entropy: entropy
+            phrase,
+            seed,
+            lang,
+            entropy,
         };
 
         Ok(mnemonic)
@@ -226,9 +242,8 @@ impl Mnemonic {
     /// ```
     ///
     /// [Mnemonic::from_string()]: ../mnemonic/struct.Mnemonic.html#method.from_string
-    pub fn validate<S>(string: S,
-                       lang: Language) -> Result<(), Error> where S: Into<String> {
-        Mnemonic::entropy(string, lang).and(Ok(()))
+    pub fn validate(phrase: &str, lang: Language) -> Result<()> {
+        Mnemonic::entropy(phrase, lang).map(|_| ())
     }
 
     /// Calculate the checksum, verify it and return the entropy
@@ -236,49 +251,38 @@ impl Mnemonic {
     /// Only intended for internal use, as returning a `Vec<u8>` that looks a bit like it could be
     /// used as the seed is likely to cause problems for someone eventually. All the other functions
     /// that return something like that are explicit about what it is and what to use it for.
-    fn entropy<S>(string: S,
-                  lang: Language) -> Result<Vec<u8>, Error> where S: Into<String> {
-        let m = string.into();
+    fn entropy(phrase: &str, lang: Language) -> Result<Vec<u8>> {
 
-        let mnemonic_type = MnemonicType::for_phrase(&*m)?;
+        let mnemonic_type = MnemonicType::for_phrase(phrase)?;
         let entropy_bits = mnemonic_type.entropy_bits();
         let checksum_bits = mnemonic_type.checksum_bits();
+        let total_bits = mnemonic_type.total_bits();
 
-        let word_map = lang.get_wordmap();
+        let wordmap = lang.get_wordmap();
 
-        let mut to_validate: BitVec = BitVec::new();
+        let mut to_validate = BitWriter::with_capacity(total_bits);
 
-        for word in m.split(" ").into_iter() {
-            let n = match word_map.get(word) {
-                Some(n) => n,
-                None => return Err(ErrorKind::InvalidWord.into())
+        for word in phrase.split(" ") {
+            let mut n = match wordmap.get(&word) {
+                Some(n) => *n,
+                None => bail!(ErrorKind::InvalidWord)
             };
-            for i in 0..11 {
-                let bit = bit_from_u16_as_u11(*n, i);
-                to_validate.push(bit);
-            }
+
+            to_validate.push(n, 11);
         }
 
-        let mut checksum_to_validate = BitVec::new();
-        &checksum_to_validate.extend((&to_validate).into_iter().skip(entropy_bits).take(checksum_bits));
-        assert!(checksum_to_validate.len() == checksum_bits, "invalid checksum size");
+        assert!(to_validate.len() == total_bits, "Insufficient amount of bits to validate");
 
-        let mut entropy_to_validate = BitVec::new();
-        &entropy_to_validate.extend((&to_validate).into_iter().take(entropy_bits));
-        assert!(entropy_to_validate.len() == entropy_bits, "invalid entropy size");
+        let to_validate = to_validate.into_bytes();
+        let entropy_bytes = entropy_bits / 8;
 
-        let entropy = entropy_to_validate.to_bytes();
+        let checksum_to_validate = checksum(to_validate[entropy_bytes], checksum_bits);
+        let entropy = truncate(to_validate, entropy_bytes);
+        let hash = sha256(&entropy);
+        let new_checksum = checksum(hash.as_ref()[0], checksum_bits);
 
-        let hash = sha256(entropy.as_ref());
-
-        let entropy_hash_to_validate_bits = BitVec::from_bytes(hash.as_ref());
-
-
-        let mut new_checksum = BitVec::new();
-        &new_checksum.extend(entropy_hash_to_validate_bits.into_iter().take(checksum_bits));
-        assert!(new_checksum.len() == checksum_bits, "invalid new checksum size");
-        if !(new_checksum == checksum_to_validate) {
-            return Err(ErrorKind::InvalidChecksum.into())
+        if new_checksum != checksum_to_validate {
+            bail!(ErrorKind::InvalidChecksum)
         }
 
         Ok(entropy)
@@ -305,14 +309,14 @@ impl Mnemonic {
 
     /// Get the mnemonic phrase as a string reference
     pub fn as_str(&self) -> &str {
-        self.string.as_ref()
+        &self.phrase
     }
 
     /// Get the mnemonic phrase as an owned string
     ///
     /// Note: this clones the internal Mnemonic String instance
     pub fn get_string(&self) -> String {
-        self.string.clone()
+        self.phrase.clone()
     }
 
     /// Get the [`Language`][Language]
@@ -360,15 +364,26 @@ impl Mnemonic {
     ///
     /// let entropy: &[u8] = mnemonic.as_entropy();
     /// ```
-    ///
-    /// Note: this function clones the internal entropy bytes
     pub fn as_entropy(&self) -> &[u8] {
-        self.entropy.as_ref()
+        &self.entropy
     }
 }
 
 impl AsRef<str> for Mnemonic {
     fn as_ref(&self) -> &str {
         self.as_str()
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn new_same_as_from_phrase() {
+        let m1 = Mnemonic::new(MnemonicType::Type12Words, Language::English, "").unwrap();
+        let m2 = Mnemonic::from_string(m1.as_str(), Language::English, "").unwrap();
+
+        assert_eq!(m1.entropy, m2.entropy, "Entropy must be the same");
     }
 }

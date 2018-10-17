@@ -41,7 +41,6 @@
 #[macro_use] extern crate lazy_static;
 extern crate data_encoding;
 extern crate bitreader;
-extern crate bit_vec;
 extern crate ring;
 
 mod mnemonic;
