@@ -128,10 +128,8 @@ impl Mnemonic {
         combined.extend_from_slice(entropy);
         combined.push(entropy_hash.as_ref()[0]);
 
-        let entropy = combined;
-
         let phrase = {
-            let mut reader = BitReader::new(&entropy);
+            let mut reader = BitReader::new(&combined);
             let mut phrase = String::with_capacity(128);
 
             let n = reader.read_u16(11).expect("We are guaranteed to have enough bits to read; qed");
@@ -146,6 +144,7 @@ impl Mnemonic {
             phrase
         };
 
+        let entropy = truncate(combined, entropy.len());
         let seed = Seed::generate(phrase.as_bytes(), password);
 
         let mnemonic = Mnemonic {
@@ -373,5 +372,18 @@ impl Mnemonic {
 impl AsRef<str> for Mnemonic {
     fn as_ref(&self) -> &str {
         self.as_str()
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn new_same_as_from_phrase() {
+        let m1 = Mnemonic::new(MnemonicType::Type12Words, Language::English, "").unwrap();
+        let m2 = Mnemonic::from_string(m1.as_str(), Language::English, "").unwrap();
+
+        assert_eq!(m1.entropy, m2.entropy, "Entropy must be the same");
     }
 }
