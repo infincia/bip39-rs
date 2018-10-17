@@ -19,6 +19,6 @@ fn validate(b: &mut Bencher) {
 #[bench]
 fn new_mnemonic(b: &mut Bencher) {
     b.iter(|| {
-        let _ = Mnemonic::new(MnemonicType::Type12Words, Language::English, "");
+        let _ = Mnemonic::new(MnemonicType::Words12, Language::English);
     })
 }

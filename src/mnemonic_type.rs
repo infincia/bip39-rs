@@ -1,4 +1,4 @@
-use ::error::{ErrorKind, Result};
+use error::{ErrorKind, Result};
 use std::fmt;
 
 /// Determines the number of words that will be present in a [`Mnemonic`][Mnemonic] phrase
@@ -11,7 +11,7 @@ use std::fmt;
 /// while a 24 word mnemonic phrase is essentially a 256-bit key.
 ///
 /// If you know you want a specific phrase length, you can use the enum variant directly, for example
-/// `MnemonicType::Type12Words`.
+/// `MnemonicType::Words12`.
 ///
 /// You can also get a `MnemonicType` that corresponds to one of the standard BIP39 key sizes by
 /// passing arbitrary `usize` values:
@@ -29,11 +29,11 @@ use std::fmt;
 ///
 #[derive(Debug, Copy, Clone)]
 pub enum MnemonicType {
-    Type12Words,
-    Type15Words,
-    Type18Words,
-    Type21Words,
-    Type24Words
+    Words12,
+    Words15,
+    Words18,
+    Words21,
+    Words24
 }
 
 impl MnemonicType {
@@ -50,11 +50,11 @@ impl MnemonicType {
     /// ```
     pub fn for_word_count(size: usize) -> Result<MnemonicType> {
         let mnemonic_type = match size {
-            12 => MnemonicType::Type12Words,
-            15 => MnemonicType::Type15Words,
-            18 => MnemonicType::Type18Words,
-            21 => MnemonicType::Type21Words,
-            24 => MnemonicType::Type24Words,
+            12 => MnemonicType::Words12,
+            15 => MnemonicType::Words15,
+            18 => MnemonicType::Words18,
+            21 => MnemonicType::Words21,
+            24 => MnemonicType::Words24,
             _ => bail!(ErrorKind::InvalidWordLength)
         };
 
@@ -74,11 +74,11 @@ impl MnemonicType {
     /// ```
     pub fn for_key_size(size: usize) -> Result<MnemonicType> {
         let mnemonic_type = match size {
-            128 => MnemonicType::Type12Words,
-            160 => MnemonicType::Type15Words,
-            192 => MnemonicType::Type18Words,
-            224 => MnemonicType::Type21Words,
-            256 => MnemonicType::Type24Words,
+            128 => MnemonicType::Words12,
+            160 => MnemonicType::Words15,
+            192 => MnemonicType::Words18,
+            224 => MnemonicType::Words21,
+            256 => MnemonicType::Words24,
             _ => bail!(ErrorKind::InvalidKeysize)
         };
 
@@ -127,11 +127,11 @@ impl MnemonicType {
     /// ```
     pub fn total_bits(&self) -> usize {
         match *self {
-            MnemonicType::Type12Words => 132,
-            MnemonicType::Type15Words => 165,
-            MnemonicType::Type18Words => 198,
-            MnemonicType::Type21Words => 231,
-            MnemonicType::Type24Words => 264
+            MnemonicType::Words12 => 132,
+            MnemonicType::Words15 => 165,
+            MnemonicType::Words18 => 198,
+            MnemonicType::Words21 => 231,
+            MnemonicType::Words24 => 264
         }
     }
 
@@ -150,11 +150,11 @@ impl MnemonicType {
     /// ```
     pub fn entropy_bits(&self) -> usize {
         match *self {
-            MnemonicType::Type12Words => 128,
-            MnemonicType::Type15Words => 160,
-            MnemonicType::Type18Words => 192,
-            MnemonicType::Type21Words => 224,
-            MnemonicType::Type24Words => 256
+            MnemonicType::Words12 => 128,
+            MnemonicType::Words15 => 160,
+            MnemonicType::Words18 => 192,
+            MnemonicType::Words21 => 224,
+            MnemonicType::Words24 => 256
         }
     }
 
@@ -173,11 +173,11 @@ impl MnemonicType {
     /// ```
     pub fn checksum_bits(&self) -> usize {
         match *self {
-            MnemonicType::Type12Words => 4,
-            MnemonicType::Type15Words => 5,
-            MnemonicType::Type18Words => 6,
-            MnemonicType::Type21Words => 7,
-            MnemonicType::Type24Words => 8
+            MnemonicType::Words12 => 4,
+            MnemonicType::Words15 => 5,
+            MnemonicType::Words18 => 6,
+            MnemonicType::Words21 => 7,
+            MnemonicType::Words24 => 8
         }
     }
 
@@ -188,24 +188,24 @@ impl MnemonicType {
     /// ```
     /// use bip39::{MnemonicType};
     ///
-    /// let mnemonic_type = MnemonicType::Type12Words;
+    /// let mnemonic_type = MnemonicType::Words12;
     ///
     /// let word_count = mnemonic_type.word_count();
     /// ```
     pub fn word_count(&self) -> usize {
         match *self {
-            MnemonicType::Type12Words => 12,
-            MnemonicType::Type15Words => 15,
-            MnemonicType::Type18Words => 18,
-            MnemonicType::Type21Words => 21,
-            MnemonicType::Type24Words => 24
+            MnemonicType::Words12 => 12,
+            MnemonicType::Words15 => 15,
+            MnemonicType::Words18 => 18,
+            MnemonicType::Words21 => 21,
+            MnemonicType::Words24 => 24
         }
     }
 }
 
 impl Default for MnemonicType {
     fn default() -> MnemonicType {
-        MnemonicType::Type12Words
+        MnemonicType::Words12
     }
 }
 

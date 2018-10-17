@@ -12,8 +12,6 @@ use ring::pbkdf2;
 extern crate rand;
 use self::rand::{OsRng, Rng};
 
-use ::error::Result;
-
 static PBKDF2_ROUNDS: u32 = 2048;
 static PBKDF2_BYTES: usize = 64;
 
@@ -29,12 +27,10 @@ pub(crate) fn sha256(input: &[u8]) -> Digest {
 
 /// Random byte generator, used to create new mnemonics
 ///
-pub(crate) fn gen_random_bytes(byte_length: usize) -> Result<Vec<u8>> {
+pub(crate) fn gen_random_bytes(byte_length: usize) -> Vec<u8> {
+    let mut rng = OsRng::new().expect("Unable to initialize a random number generator!");
 
-    let mut rng = OsRng::new()?;
-    let entropy = rng.gen_iter().take(byte_length).collect();
-
-    Ok(entropy)
+    rng.gen_iter().take(byte_length).collect()
 }
 
 /// PBKDF2 helper, used to generate [`Seed`][Seed] from [`Mnemonic`][Mnemonic]
