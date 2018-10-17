@@ -65,10 +65,10 @@ impl Language {
     }
 
     /// Get the word list for this language
-    pub fn get_wordlist(&self) -> &'static Vec<&'static str> {
+    pub fn get_wordlist(&self) -> &'static [&'static str] {
 
         match *self {
-            Language::English => &lazy::VEC_BIP39_WORDLIST_ENGLISH
+            Language::English => &*lazy::VEC_BIP39_WORDLIST_ENGLISH
         }
     }
 
@@ -82,7 +82,7 @@ impl Language {
     pub fn get_wordmap(&self) -> &'static HashMap<&'static str, u16> {
 
         match *self {
-            Language::English => &lazy::HASHMAP_BIP39_WORDMAP_ENGLISH
+            Language::English => &*lazy::HASHMAP_BIP39_WORDMAP_ENGLISH
         }
     }
 }

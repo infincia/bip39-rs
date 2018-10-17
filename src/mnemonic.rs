@@ -36,7 +36,7 @@ use ::seed::Seed;
 ///
 #[derive(Debug, Clone)]
 pub struct Mnemonic {
-    string: String,
+    phrase: String,
     seed: Seed,
     lang: Language,
     entropy: Vec<u8>,
@@ -177,25 +177,25 @@ impl Mnemonic {
     /// ```
     ///
     /// [Mnemonic]: ../mnemonic/struct.Mnemonic.html
-    pub fn from_string<S>(string: S,
+    pub fn from_string<S>(phrase: S,
                           lang: Language,
                           password: S) -> Result<Mnemonic> where S: Into<String> {
 
-        let m = string.into();
-        let p = password.into();
+        let phrase = phrase.into();
+        let password = password.into();
 
         // this also validates the checksum and phrase length before returning the entropy so we
         // can store it. We don't use the validate function here to avoid having a public API that
         // takes a phrase string and returns the entropy directly. See the Mnemonic::entropy()
         // docs for the reason.
-        let entropy = Mnemonic::entropy(&m, lang)?;
-        let seed = Seed::generate(&m.as_bytes(), &p);
+        let entropy = Mnemonic::entropy(&phrase, lang)?;
+        let seed = Seed::generate(phrase.as_bytes(), &password);
 
         let mnemonic = Mnemonic {
-            string: m,
-            seed: seed,
-            lang: lang,
-            entropy: entropy
+            phrase,
+            seed,
+            lang,
+            entropy,
         };
 
         Ok(mnemonic)
@@ -224,8 +224,8 @@ impl Mnemonic {
     /// ```
     ///
     /// [Mnemonic::from_string()]: ../mnemonic/struct.Mnemonic.html#method.from_string
-    pub fn validate(string: &str, lang: Language) -> Result<()> {
-        Mnemonic::entropy(string, lang).map(|_| ())
+    pub fn validate(phrase: &str, lang: Language) -> Result<()> {
+        Mnemonic::entropy(phrase, lang).map(|_| ())
     }
 
     /// Calculate the checksum, verify it and return the entropy
@@ -291,14 +291,14 @@ impl Mnemonic {
 
     /// Get the mnemonic phrase as a string reference
     pub fn as_str(&self) -> &str {
-        &self.string
+        &self.phrase
     }
 
     /// Get the mnemonic phrase as an owned string
     ///
     /// Note: this clones the internal Mnemonic String instance
     pub fn get_string(&self) -> String {
-        self.string.clone()
+        self.phrase.clone()
     }
 
     /// Get the [`Language`][Language]
