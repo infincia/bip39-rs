@@ -1,12 +1,22 @@
+pub(crate) trait Bits {
+    const BITS: usize;
+}
 
-pub(crate) struct BitWriter {
+pub(crate) struct Bits11;
+
+impl Bits for Bits11 {
+    const BITS: usize = 11;
+}
+
+pub(crate) struct BitWriter<B: Bits> {
+    _bits: B,
     offset: usize,
     remainder: u32,
     inner: Vec<u8>,
 }
 
-impl BitWriter {
-    pub fn with_capacity(capacity: usize) -> Self {
+impl<B: Bits> BitWriter<B> {
+    pub fn with_capacity(capacity: usize, bits: B) -> Self {
         let mut bytes = capacity / 8;
 
         if capacity % 8 != 0 {
@@ -14,19 +24,18 @@ impl BitWriter {
         }
 
         Self {
+            _bits: bits,
             offset: 0,
             remainder: 0,
             inner: Vec::with_capacity(bytes)
         }
     }
 
-    pub fn push(&mut self, source: u16, bits: usize) {
-        debug_assert!(bits > 0 && bits <= 16, "bits out of range");
-
-        let shift = 32 - bits;
+    pub fn push(&mut self, source: u16) {
+        let shift = 32 - B::BITS;
 
         self.remainder |= ((source as u32) << shift) >> self.offset;
-        self.offset += bits;
+        self.offset += B::BITS;
 
         while self.offset >= 8 {
             self.inner.push((self.remainder >> 24) as u8);
@@ -48,12 +57,51 @@ impl BitWriter {
     }
 }
 
+pub(crate) struct BitReader<I: Iterator<Item = u8> + Sized, B: Bits> {
+    _bits: B,
+    source: I,
+    read: usize,
+    buffer: u32,
+}
+
+impl<I: Iterator<Item = u8> + Sized, B: Bits> BitReader<I, B> {
+    pub fn new(source: I, bits: B) -> Self {
+        let source = source.into_iter();
+
+        BitReader {
+            _bits: bits,
+            source,
+            read: 0,
+            buffer: 0,
+        }
+    }
+}
+
+impl<I: Iterator<Item = u8>, B: Bits> Iterator for BitReader<I, B> {
+    type Item = u16;
+
+    fn next(&mut self) -> Option<u16> {
+        while self.read < B::BITS {
+            let byte = self.source.next()?;
+            self.read += 8;
+            self.buffer |= (byte as u32) << (32 - self.read);
+        }
+
+        let result = (self.buffer >> (32 - B::BITS)) as u16;
+
+        self.buffer <<= B::BITS;
+        self.read -= B::BITS;
+
+        Some(result)
+    }
+}
+
 pub(crate) fn truncate(mut source: Vec<u8>, size: usize) -> Vec<u8> {
     source.truncate(size);
     source
 }
 
-pub(crate) fn checksum(source: u8, bits: usize) -> u8 {
+pub(crate) fn checksum(source: u8, bits: u8) -> u8 {
     debug_assert!(bits <= 8, "Can operate on 8-bit integers only");
 
     source >> (8 - bits)

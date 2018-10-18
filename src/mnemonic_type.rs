@@ -1,6 +1,8 @@
 use error::{ErrorKind, Result};
 use std::fmt;
 
+const ENTROPY_OFFSET: usize = 8;
+
 /// Determines the number of words that will be present in a [`Mnemonic`][Mnemonic] phrase
 ///
 /// Also directly affects the amount of entropy that will be used to create a [`Mnemonic`][Mnemonic],
@@ -20,7 +22,6 @@ use std::fmt;
 /// use bip39::{MnemonicType};
 ///
 /// let mnemonic_type = MnemonicType::for_key_size(128).unwrap();
-///
 /// ```
 ///
 /// [MnemonicType]: ../mnemonic_type/struct.MnemonicType.html
@@ -29,11 +30,12 @@ use std::fmt;
 ///
 #[derive(Debug, Copy, Clone)]
 pub enum MnemonicType {
-    Words12,
-    Words15,
-    Words18,
-    Words21,
-    Words24
+    //  ... = (entropy_bits << ...)   | checksum_bits
+    Words12 = (128 << ENTROPY_OFFSET) | 4,
+    Words15 = (160 << ENTROPY_OFFSET) | 5,
+    Words18 = (192 << ENTROPY_OFFSET) | 6,
+    Words21 = (224 << ENTROPY_OFFSET) | 7,
+    Words24 = (256 << ENTROPY_OFFSET) | 8,
 }
 
 impl MnemonicType {
@@ -105,7 +107,7 @@ impl MnemonicType {
     /// let entropy_bits = mnemonic_type.entropy_bits();
     /// ```
     ///
-    /// [MnemonicType::entropy_bits()]: ../mnemonic_type/struct.MnemonicType.html#method.entropy_bits
+    /// [MnemonicType::entropy_bits()]: ./enum.MnemonicType.html#method.entropy_bits
     pub fn for_phrase(phrase: &str) -> Result<MnemonicType> {
         let word_count = phrase.split(" ").count();
 
@@ -126,13 +128,7 @@ impl MnemonicType {
     /// let total_bits = mnemonic_type.total_bits();
     /// ```
     pub fn total_bits(&self) -> usize {
-        match *self {
-            MnemonicType::Words12 => 132,
-            MnemonicType::Words15 => 165,
-            MnemonicType::Words18 => 198,
-            MnemonicType::Words21 => 231,
-            MnemonicType::Words24 => 264
-        }
+        self.entropy_bits() + self.checksum_bits() as usize
     }
 
     /// Return the number of entropy bits
@@ -149,13 +145,7 @@ impl MnemonicType {
     /// let entropy_bits = mnemonic_type.entropy_bits();
     /// ```
     pub fn entropy_bits(&self) -> usize {
-        match *self {
-            MnemonicType::Words12 => 128,
-            MnemonicType::Words15 => 160,
-            MnemonicType::Words18 => 192,
-            MnemonicType::Words21 => 224,
-            MnemonicType::Words24 => 256
-        }
+        (*self as usize) >> ENTROPY_OFFSET
     }
 
     /// Return the number of checksum bits
@@ -171,14 +161,8 @@ impl MnemonicType {
     ///
     /// let checksum_bits = mnemonic_type.checksum_bits();
     /// ```
-    pub fn checksum_bits(&self) -> usize {
-        match *self {
-            MnemonicType::Words12 => 4,
-            MnemonicType::Words15 => 5,
-            MnemonicType::Words18 => 6,
-            MnemonicType::Words21 => 7,
-            MnemonicType::Words24 => 8
-        }
+    pub fn checksum_bits(&self) -> u8 {
+        (*self as usize) as u8
     }
 
     /// Return the number of words

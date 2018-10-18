@@ -3,7 +3,6 @@ use mnemonic_type::MnemonicType;
 error_chain! {
     foreign_links {
         EntropyUnavailable(::std::io::Error);
-        DataDecode(::data_encoding::DecodeError);
     }
 
     errors {

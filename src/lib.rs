@@ -13,8 +13,8 @@
 //! /// create a new randomly generated mnemonic phrase
 //! let mnemonic = Mnemonic::new(MnemonicType::Words12, Language::English);
 //!
-//! /// get the phrase as a string
-//! let phrase = mnemonic.phrase();
+//! /// get the phrase
+//! let phrase: &str = mnemonic.phrase();
 //! println!("phrase: {}", phrase);
 //!
 //! /// get the HD wallet seed
@@ -23,15 +23,14 @@
 //! // get the HD wallet seed as raw bytes
 //! let seed_bytes: &[u8] = seed.as_bytes();
 //!
-//! // get the HD wallet seed as a hex string
-//! let seed_hex: String = seed.to_hex();
+//! // print the HD wallet seed as a hex string
+//! println!("{:X}", seed);
 //! ```
 //!
 #[macro_use] extern crate error_chain;
 #[macro_use] extern crate lazy_static;
-extern crate data_encoding;
-extern crate bitreader;
 extern crate ring;
+extern crate rustc_hash;
 
 mod mnemonic;
 mod error;

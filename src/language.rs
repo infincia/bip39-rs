@@ -1,16 +1,20 @@
 use ::error::{ErrorKind, Result};
-use std::collections::HashMap;
+use rustc_hash::FxHashMap;
 
 mod lazy {
-    use super::HashMap;
+    use super::FxHashMap;
 
     /// lazy generation of the word list
     fn gen_wordlist(lang_words: &str) -> Vec<&str> {
-        lang_words.split_whitespace().collect()
+        let wordlist: Vec<_> = lang_words.split_whitespace().collect();
+
+        debug_assert!(wordlist.len() == 2048, "Invalid wordlist length");
+
+        wordlist
     }
 
     /// lazy generation of the word map
-    fn gen_wordmap(wordlist: &[&'static str]) -> HashMap<&'static str, u16> {
+    fn gen_wordmap(wordlist: &[&'static str]) -> FxHashMap<&'static str, u16> {
         wordlist
             .iter()
             .enumerate()
@@ -18,12 +22,10 @@ mod lazy {
             .collect()
     }
 
-    static BIP39_WORDLIST_ENGLISH: &str = include_str!("bip39_english.txt");
-
     lazy_static! {
-        pub static ref VEC_BIP39_WORDLIST_ENGLISH: Vec<&'static str> = gen_wordlist(BIP39_WORDLIST_ENGLISH);
+        pub static ref WORDLIST_ENGLISH: Vec<&'static str> = gen_wordlist(include_str!("bip39_english.txt"));
 
-        pub static ref HASHMAP_BIP39_WORDMAP_ENGLISH: HashMap<&'static str, u16> = gen_wordmap(&VEC_BIP39_WORDLIST_ENGLISH);
+        pub static ref WORDMAP_ENGLISH: FxHashMap<&'static str, u16> = gen_wordmap(&WORDLIST_ENGLISH);
     }
 }
 
@@ -33,8 +35,8 @@ mod lazy {
 /// These are not of much use right now, and may even be removed from the crate, as there is no
 /// official language specified by the standard except English.
 ///
-/// [Mnemonic]: ../mnemonic/struct.Mnemonic.html
-/// [Seed]: ../seed/struct.Seed.html
+/// [Mnemonic]: ./mnemonic/struct.Mnemonic.html
+/// [Seed]: ./seed/struct.Seed.html
 #[derive(Debug, Clone, Copy)]
 pub enum Language {
     English
@@ -52,7 +54,7 @@ impl Language {
     /// let lang = Language::for_locale("en_US.UTF-8").unwrap();
     ///
     /// ```
-    /// [Language]: ../language/struct.Language.html
+    /// [Language]: ./enum.Language.html
     pub fn for_locale(locale: &str) -> Result<Language> {
         let lang = match locale {
             "en_US.UTF-8" => Language::English,
@@ -65,24 +67,19 @@ impl Language {
     }
 
     /// Get the word list for this language
-    pub fn get_wordlist(&self) -> &'static [&'static str] {
-
+    pub(crate) fn wordlist(&self) -> &'static [&'static str] {
         match *self {
-            Language::English => &*lazy::VEC_BIP39_WORDLIST_ENGLISH
+            Language::English => &lazy::WORDLIST_ENGLISH
         }
     }
 
-    /// Get a [`HashMap`][HashMap] that allows word -> index lookups in the word list
+    /// Get a [`FxHashMap`][FxHashMap] that allows word -> index lookups in the word list
     ///
     /// The index of an individual word in the word list is used as the binary value of that word
     /// when the phrase is turned into a [`Seed`][Seed].
-    ///
-    /// [HashMap]: https://doc.rust-lang.org/std/collections/struct.HashMap.html
-    /// [Seed]: ../seed/struct.Seed.html
-    pub fn get_wordmap(&self) -> &'static HashMap<&'static str, u16> {
-
+    pub(crate) fn wordmap(&self) -> &'static FxHashMap<&'static str, u16> {
         match *self {
-            Language::English => &*lazy::HASHMAP_BIP39_WORDMAP_ENGLISH
+            Language::English => &lazy::WORDMAP_ENGLISH
         }
     }
 }
