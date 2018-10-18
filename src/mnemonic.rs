@@ -1,5 +1,5 @@
 use util::{truncate, checksum, IterJoinExt, BitWriter, BitIterExt, Bits11};
-use crypto::{gen_random_bytes, sha256};
+use crypto::{gen_random_bytes, sha256_first_byte};
 use error::{ErrorKind, Result};
 use mnemonic_type::MnemonicType;
 use language::Language;
@@ -90,7 +90,7 @@ impl Mnemonic {
         let entropy = entropy.into();
         let wordlist = lang.wordlist();
 
-        let checksum_byte = sha256(&entropy).as_ref()[0];
+        let checksum_byte = sha256_first_byte(&entropy);
 
         // First, create a byte iterator for the given entropy and the first byte of the
         // hash of the entropy that will serve as the checksum (up to 8 bits for biggest
@@ -208,7 +208,7 @@ impl Mnemonic {
         // Truncate to get rid of the byte containing the checksum
         let entropy = truncate(to_validate, entropy_bytes);
 
-        let checksum_byte = sha256(&entropy).as_ref()[0];
+        let checksum_byte = sha256_first_byte(&entropy);
         let expected_checksum = checksum(checksum_byte, mtype.checksum_bits());
 
         if actual_checksum != expected_checksum {

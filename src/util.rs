@@ -2,7 +2,7 @@ pub(crate) trait IterJoinExt {
     fn join(&mut self, &str) -> String;
 }
 
-impl<'a, I: Iterator<Item = &'a str>> IterJoinExt for I {
+impl<T: AsRef<str>, I: Iterator<Item = T>> IterJoinExt for I {
     fn join(&mut self, glue: &str) -> String {
         let first = match self.next() {
             Some(first) => first,
@@ -11,11 +11,11 @@ impl<'a, I: Iterator<Item = &'a str>> IterJoinExt for I {
 
         let mut buffer = String::with_capacity(128);
 
-        buffer.push_str(first);
+        buffer.push_str(first.as_ref());
 
         for item in self {
             buffer.push_str(glue);
-            buffer.push_str(item);
+            buffer.push_str(item.as_ref());
         }
 
         buffer

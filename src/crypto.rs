@@ -6,7 +6,7 @@
 //!
 
 
-use ring::digest::{self, digest, Digest};
+use ring::digest::{self, digest};
 use ring::pbkdf2;
 
 extern crate rand;
@@ -18,11 +18,10 @@ const PBKDF2_BYTES: usize = 64;
 
 /// SHA256 helper function, internal to the crate
 ///
-pub(crate) fn sha256(input: &[u8]) -> Digest {
-
+pub(crate) fn sha256_first_byte(input: &[u8]) -> u8 {
     static DIGEST_ALG: &'static digest::Algorithm = &digest::SHA256;
 
-    digest(DIGEST_ALG, input)
+    digest(DIGEST_ALG, input).as_ref()[0]
 }
 
 /// Random byte generator, used to create new mnemonics
