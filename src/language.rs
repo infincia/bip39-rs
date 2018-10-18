@@ -1,7 +1,21 @@
 use rustc_hash::FxHashMap;
+use error::{ErrorKind, Result};
+
+pub struct WordMap {
+    inner: FxHashMap<&'static str, u16>
+}
+
+impl WordMap {
+    pub fn get_bits(&self, word: &str) -> Result<u16> {
+        match self.inner.get(word) {
+            Some(n) => Ok(*n),
+            None => bail!(ErrorKind::InvalidWord)
+        }
+    }
+}
 
 mod lazy {
-    use super::FxHashMap;
+    use super::WordMap;
 
     /// lazy generation of the word list
     fn gen_wordlist(lang_words: &str) -> Vec<&str> {
@@ -13,12 +27,15 @@ mod lazy {
     }
 
     /// lazy generation of the word map
-    fn gen_wordmap(wordlist: &[&'static str]) -> FxHashMap<&'static str, u16> {
-        wordlist
-            .iter()
-            .enumerate()
-            .map(|(i, item)| (*item, i as u16))
-            .collect()
+    fn gen_wordmap(wordlist: &[&'static str]) -> WordMap {
+        let inner = wordlist.iter()
+                            .enumerate()
+                            .map(|(i, item)| (*item, i as u16))
+                            .collect();
+
+        WordMap {
+            inner
+        }
     }
 
     lazy_static! {
@@ -31,14 +48,14 @@ mod lazy {
         pub static ref WORDLIST_KOREAN: Vec<&'static str> = gen_wordlist(include_str!("langs/korean.txt"));
         pub static ref WORDLIST_SPANISH: Vec<&'static str> = gen_wordlist(include_str!("langs/spanish.txt"));
 
-        pub static ref WORDMAP_ENGLISH: FxHashMap<&'static str, u16> = gen_wordmap(&WORDLIST_ENGLISH);
-        pub static ref WORDMAP_CHINESE_SIMPLIFIED: FxHashMap<&'static str, u16> = gen_wordmap(&WORDLIST_CHINESE_SIMPLIFIED);
-        pub static ref WORDMAP_CHINESE_TRADITIONAL: FxHashMap<&'static str, u16> = gen_wordmap(&WORDLIST_CHINESE_TRADITIONAL);
-        pub static ref WORDMAP_FRENCH: FxHashMap<&'static str, u16> = gen_wordmap(&WORDLIST_FRENCH);
-        pub static ref WORDMAP_ITALIAN: FxHashMap<&'static str, u16> = gen_wordmap(&WORDLIST_ITALIAN);
-        pub static ref WORDMAP_JAPANESE: FxHashMap<&'static str, u16> = gen_wordmap(&WORDLIST_JAPANESE);
-        pub static ref WORDMAP_KOREAN: FxHashMap<&'static str, u16> = gen_wordmap(&WORDLIST_KOREAN);
-        pub static ref WORDMAP_SPANISH: FxHashMap<&'static str, u16> = gen_wordmap(&WORDLIST_SPANISH);
+        pub static ref WORDMAP_ENGLISH: WordMap = gen_wordmap(&WORDLIST_ENGLISH);
+        pub static ref WORDMAP_CHINESE_SIMPLIFIED: WordMap = gen_wordmap(&WORDLIST_CHINESE_SIMPLIFIED);
+        pub static ref WORDMAP_CHINESE_TRADITIONAL: WordMap = gen_wordmap(&WORDLIST_CHINESE_TRADITIONAL);
+        pub static ref WORDMAP_FRENCH: WordMap = gen_wordmap(&WORDLIST_FRENCH);
+        pub static ref WORDMAP_ITALIAN: WordMap = gen_wordmap(&WORDLIST_ITALIAN);
+        pub static ref WORDMAP_JAPANESE: WordMap = gen_wordmap(&WORDLIST_JAPANESE);
+        pub static ref WORDMAP_KOREAN: WordMap = gen_wordmap(&WORDLIST_KOREAN);
+        pub static ref WORDMAP_SPANISH: WordMap = gen_wordmap(&WORDLIST_SPANISH);
     }
 }
 
@@ -77,11 +94,11 @@ impl Language {
         }
     }
 
-    /// Get a [`FxHashMap`][FxHashMap] that allows word -> index lookups in the word list
+    /// Get a [`WordMap`][WordMap] that allows word -> index lookups in the word list
     ///
     /// The index of an individual word in the word list is used as the binary value of that word
     /// when the phrase is turned into a [`Seed`][Seed].
-    pub(crate) fn wordmap(&self) -> &'static FxHashMap<&'static str, u16> {
+    pub fn wordmap(&self) -> &'static WordMap {
         match *self {
             Language::English => &lazy::WORDMAP_ENGLISH,
             Language::ChineseSimplified => &lazy::WORDMAP_CHINESE_SIMPLIFIED,

@@ -99,7 +99,8 @@ impl Mnemonic {
         // Then we transform that into a bits iterator that returns 11 bits at a
         // time (as u16), which we can map to the words on the `wordlist`.
         //
-        // Given the entropy is correct, this ought to give us the correct word count.
+        // Given the entropy is of correct size, this ought to give us the correct word
+        // count.
         let phrase = entropy.iter()
                             .cloned()
                             .chain(Some(checksum_byte))
@@ -139,8 +140,7 @@ impl Mnemonic {
 
         // this also validates the checksum and phrase length before returning the entropy so we
         // can store it. We don't use the validate function here to avoid having a public API that
-        // takes a phrase string and returns the entropy directly. See the Mnemonic::entropy()
-        // docs for the reason.
+        // takes a phrase string and returns the entropy directly.
         let entropy = Mnemonic::phrase_to_entropy(&phrase, lang)?;
 
         let mnemonic = Mnemonic {
@@ -155,7 +155,7 @@ impl Mnemonic {
     /// Validate a mnemonic phrase
     ///
     /// The phrase supplied will be checked for word length and validated according to the checksum
-    /// specified in BIP0039
+    /// specified in BIP0039.
     ///
     /// # Example
     ///
@@ -166,8 +166,6 @@ impl Mnemonic {
     ///
     /// assert!(Mnemonic::validate(test_mnemonic, Language::English).is_ok());
     /// ```
-    ///
-    /// [Mnemonic::from_phrase()]: ../mnemonic/struct.Mnemonic.html#method.from_phrase
     pub fn validate(phrase: &str, lang: Language) -> Result<()> {
         Mnemonic::phrase_to_entropy(phrase, lang)?;
 
@@ -187,12 +185,11 @@ impl Mnemonic {
         let mut word_count = 0;
 
         for word in phrase.split(" ") {
-            let n = match wordmap.get(&word) {
-                Some(&n) => n,
-                None => bail!(ErrorKind::InvalidWord)
-            };
+            let bits = wordmap.get_bits(&word)?;
 
-            to_validate.push(n);
+            debug_assert!(bits >> 11 == 0);
+
+            to_validate.push(bits);
             word_count += 1;
         }
 
@@ -360,8 +357,8 @@ mod test {
         let mnemonic = Mnemonic::from_entropy(entropy, Language::English).unwrap();
 
         assert_eq!(format!("{:x}", mnemonic), "33e46bb13a746ea41cdde45c90846a79");
-        assert_eq!(format!("{:#x}", mnemonic), "0x33e46bb13a746ea41cdde45c90846a79");
         assert_eq!(format!("{:X}", mnemonic), "33E46BB13A746EA41CDDE45C90846A79");
+        assert_eq!(format!("{:#x}", mnemonic), "0x33e46bb13a746ea41cdde45c90846a79");
         assert_eq!(format!("{:#X}", mnemonic), "0x33E46BB13A746EA41CDDE45C90846A79");
     }
 }
