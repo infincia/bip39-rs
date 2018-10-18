@@ -1,4 +1,4 @@
-use util::{truncate, checksum, BitWriter, BitReader, Bits11};
+use util::{truncate, checksum, IterJoinExt, BitWriter, BitIterExt, Bits11};
 use crypto::{gen_random_bytes, sha256};
 use error::{ErrorKind, Result};
 use mnemonic_type::MnemonicType;
@@ -92,29 +92,20 @@ impl Mnemonic {
 
         let checksum_byte = sha256(&entropy).as_ref()[0];
 
-        let phrase = {
-            // First, create a byte iterator for the given entropy and the first byte of the
-            // hash of the entropy that will serve as the checksum (up to 8 bits for biggest
-            // entropy source).
-            let mut iter = entropy.iter().cloned().chain(Some(checksum_byte));
-
-            // Then we transform that into a BitReader iterator, that returns 11 bits at a
-            // time (as u16), which we can map to the words on the `wordlist`.
-            //
-            // Assuming the entropy size is correct, this ought to give us the correct amount
-            // of words.
-            let mut words = BitReader::new(iter, Bits11).map(|n| wordlist[n as usize]);
-            let mut phrase = String::with_capacity(128);
-
-            phrase.push_str(words.next().expect("Must have at least one word; qed"));
-
-            for word in words {
-                phrase.push(' ');
-                phrase.push_str(word);
-            }
-
-            phrase
-        };
+        // First, create a byte iterator for the given entropy and the first byte of the
+        // hash of the entropy that will serve as the checksum (up to 8 bits for biggest
+        // entropy source).
+        //
+        // Then we transform that into a bits iterator that returns 11 bits at a
+        // time (as u16), which we can map to the words on the `wordlist`.
+        //
+        // Given the entropy is correct, this ought to give us the correct word count.
+        let phrase = entropy.iter()
+                            .cloned()
+                            .chain(Some(checksum_byte))
+                            .bits(Bits11)
+                            .map(|n| wordlist[n as usize])
+                            .join(" ");
 
         Mnemonic {
             phrase,
@@ -213,7 +204,10 @@ impl Mnemonic {
         let entropy_bytes = mtype.entropy_bits() / 8;
 
         let actual_checksum = checksum(to_validate[entropy_bytes], mtype.checksum_bits());
+
+        // Truncate to get rid of the byte containing the checksum
         let entropy = truncate(to_validate, entropy_bytes);
+
         let checksum_byte = sha256(&entropy).as_ref()[0];
         let expected_checksum = checksum(checksum_byte, mtype.checksum_bits());
 

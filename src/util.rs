@@ -1,3 +1,27 @@
+pub(crate) trait IterJoinExt {
+    fn join(&mut self, &str) -> String;
+}
+
+impl<'a, I: Iterator<Item = &'a str>> IterJoinExt for I {
+    fn join(&mut self, glue: &str) -> String {
+        let first = match self.next() {
+            Some(first) => first,
+            None        => return String::new()
+        };
+
+        let mut buffer = String::with_capacity(128);
+
+        buffer.push_str(first);
+
+        for item in self {
+            buffer.push_str(glue);
+            buffer.push_str(item);
+        }
+
+        buffer
+    }
+}
+
 pub(crate) trait Bits {
     const BITS: usize;
 }
@@ -57,18 +81,29 @@ impl<B: Bits> BitWriter<B> {
     }
 }
 
-pub(crate) struct BitReader<I: Iterator<Item = u8> + Sized, B: Bits> {
+
+pub(crate) trait BitIterExt: Iterator<Item = u8> + Sized {
+    fn bits<B: Bits>(self, bits: B) -> BitIter<Self, B>;
+}
+
+impl<I: Iterator<Item = u8> + Sized> BitIterExt for I {
+    fn bits<B: Bits>(self, bits: B) -> BitIter<Self, B> {
+        BitIter::new(self, bits)
+    }
+}
+
+pub(crate) struct BitIter<I: Iterator<Item = u8> + Sized, B: Bits> {
     _bits: B,
     source: I,
     read: usize,
     buffer: u32,
 }
 
-impl<I: Iterator<Item = u8> + Sized, B: Bits> BitReader<I, B> {
+impl<I: Iterator<Item = u8> + Sized, B: Bits> BitIter<I, B> {
     pub fn new(source: I, bits: B) -> Self {
         let source = source.into_iter();
 
-        BitReader {
+        BitIter {
             _bits: bits,
             source,
             read: 0,
@@ -77,7 +112,7 @@ impl<I: Iterator<Item = u8> + Sized, B: Bits> BitReader<I, B> {
     }
 }
 
-impl<I: Iterator<Item = u8>, B: Bits> Iterator for BitReader<I, B> {
+impl<I: Iterator<Item = u8>, B: Bits> Iterator for BitIter<I, B> {
     type Item = u16;
 
     fn next(&mut self) -> Option<u16> {
