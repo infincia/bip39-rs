@@ -26,9 +26,5 @@ error_chain! {
             description("invalid entropy length for mnemonic type")
             display("Invalid entropy length {}bits for mnemonic type {}", entropy_length_bits, mnemonic_type)
         }
-        LanguageUnavailable {
-            description("wrapping key failed")
-            display("Language unavailable")
-        }
     }
 }

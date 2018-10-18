@@ -55,10 +55,8 @@ impl Mnemonic {
     ///
     /// [Mnemonic]: ./mnemonic/struct.Mnemonic.html
     /// [Mnemonic::phrase()]: ./mnemonic/struct.Mnemonic.html#method.phrase
-    pub fn new(mnemonic_type: MnemonicType, lang: Language) -> Mnemonic {
-        let entropy_bits = mnemonic_type.entropy_bits();
-
-        let entropy = gen_random_bytes(entropy_bits / 8);
+    pub fn new(mtype: MnemonicType, lang: Language) -> Mnemonic {
+        let entropy = gen_random_bytes(mtype.entropy_bits() / 8);
 
         Mnemonic::from_entropy_unchecked(entropy, lang)
     }
@@ -85,7 +83,10 @@ impl Mnemonic {
         Ok(Self::from_entropy_unchecked(entropy, lang))
     }
 
-    fn from_entropy_unchecked<E: Into<Vec<u8>>>(entropy: E, lang: Language) -> Mnemonic {
+    fn from_entropy_unchecked<E>(entropy: E, lang: Language) -> Mnemonic
+    where
+        E: Into<Vec<u8>>
+    {
         let entropy = entropy.into();
         let wordlist = lang.wordlist();
 
@@ -102,7 +103,6 @@ impl Mnemonic {
             //
             // Assuming the entropy size is correct, this ought to give us the correct amount
             // of words.
-
             let mut words = BitReader::new(iter, Bits11).map(|n| wordlist[n as usize]);
             let mut phrase = String::with_capacity(128);
 
@@ -141,7 +141,8 @@ impl Mnemonic {
     ///
     /// [Mnemonic]: ../mnemonic/struct.Mnemonic.html
     pub fn from_phrase<S>(phrase: S, lang: Language) -> Result<Mnemonic>
-        where S: Into<String>
+    where
+        S: Into<String>,
     {
         let phrase = phrase.into();
 
@@ -206,7 +207,7 @@ impl Mnemonic {
 
         let mtype = MnemonicType::for_word_count(word_count)?;
 
-        assert!(to_validate.len() == mtype.total_bits(), "Insufficient amount of bits to validate");
+        debug_assert!(to_validate.len() == mtype.total_bits(), "Insufficient amount of bits to validate");
 
         let to_validate = to_validate.into_bytes();
         let entropy_bytes = mtype.entropy_bits() / 8;
@@ -217,7 +218,7 @@ impl Mnemonic {
         let expected_checksum = checksum(checksum_byte, mtype.checksum_bits());
 
         if actual_checksum != expected_checksum {
-            bail!(ErrorKind::InvalidChecksum)
+            bail!(ErrorKind::InvalidChecksum);
         }
 
         Ok(entropy)

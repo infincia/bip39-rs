@@ -177,13 +177,7 @@ impl MnemonicType {
     /// let word_count = mnemonic_type.word_count();
     /// ```
     pub fn word_count(&self) -> usize {
-        match *self {
-            MnemonicType::Words12 => 12,
-            MnemonicType::Words15 => 15,
-            MnemonicType::Words18 => 18,
-            MnemonicType::Words21 => 21,
-            MnemonicType::Words24 => 24
-        }
+        self.total_bits() / 11
     }
 }
 
@@ -196,5 +190,37 @@ impl Default for MnemonicType {
 impl fmt::Display for MnemonicType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{} words ({}bits)", self.word_count(), self.entropy_bits())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn word_count() {
+        assert_eq!(MnemonicType::Words12.word_count(), 12);
+        assert_eq!(MnemonicType::Words15.word_count(), 15);
+        assert_eq!(MnemonicType::Words18.word_count(), 18);
+        assert_eq!(MnemonicType::Words21.word_count(), 21);
+        assert_eq!(MnemonicType::Words24.word_count(), 24);
+    }
+
+    #[test]
+    fn entropy_bits() {
+        assert_eq!(MnemonicType::Words12.entropy_bits(), 128);
+        assert_eq!(MnemonicType::Words15.entropy_bits(), 160);
+        assert_eq!(MnemonicType::Words18.entropy_bits(), 192);
+        assert_eq!(MnemonicType::Words21.entropy_bits(), 224);
+        assert_eq!(MnemonicType::Words24.entropy_bits(), 256);
+    }
+
+    #[test]
+    fn checksum_bits() {
+        assert_eq!(MnemonicType::Words12.checksum_bits(), 4);
+        assert_eq!(MnemonicType::Words15.checksum_bits(), 5);
+        assert_eq!(MnemonicType::Words18.checksum_bits(), 6);
+        assert_eq!(MnemonicType::Words21.checksum_bits(), 7);
+        assert_eq!(MnemonicType::Words24.checksum_bits(), 8);
     }
 }
