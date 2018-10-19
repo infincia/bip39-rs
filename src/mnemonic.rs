@@ -1,4 +1,4 @@
-use util::{truncate, checksum, IterJoinExt, BitWriter, BitIterExt, Bits11};
+use util::{truncate, checksum, IterJoinExt, BitWriter, IterBitsExt, Bits11};
 use crypto::{gen_random_bytes, sha256_first_byte};
 use error::{ErrorKind, Result};
 use mnemonic_type::MnemonicType;

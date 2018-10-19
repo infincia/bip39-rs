@@ -82,11 +82,11 @@ impl<B: Bits> BitWriter<B> {
 }
 
 
-pub(crate) trait BitIterExt: Iterator<Item = u8> + Sized {
+pub(crate) trait IterBitsExt: Iterator<Item = u8> + Sized {
     fn bits<B: Bits>(self, bits: B) -> BitIter<Self, B>;
 }
 
-impl<I: Iterator<Item = u8> + Sized> BitIterExt for I {
+impl<I: Iterator<Item = u8> + Sized> IterBitsExt for I {
     fn bits<B: Bits>(self, bits: B) -> BitIter<Self, B> {
         BitIter::new(self, bits)
     }
@@ -118,6 +118,7 @@ impl<I: Iterator<Item = u8>, B: Bits> Iterator for BitIter<I, B> {
     fn next(&mut self) -> Option<u16> {
         while self.read < B::BITS {
             let byte = self.source.next()?;
+
             self.read += 8;
             self.buffer |= (byte as u32) << (32 - self.read);
         }

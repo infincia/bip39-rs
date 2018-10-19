@@ -10,7 +10,7 @@ use ring::digest::{self, digest};
 use ring::pbkdf2;
 
 extern crate rand;
-use self::rand::{OsRng, Rng};
+use self::rand::{thread_rng, Rng};
 
 const PBKDF2_ROUNDS: u32 = 2048;
 const PBKDF2_BYTES: usize = 64;
@@ -27,20 +27,11 @@ pub(crate) fn sha256_first_byte(input: &[u8]) -> u8 {
 /// Random byte generator, used to create new mnemonics
 ///
 pub(crate) fn gen_random_bytes(byte_length: usize) -> Vec<u8> {
-    let mut rng = OsRng::new().expect("Unable to initialize a random number generator!");
+    let mut rng = thread_rng();
     let mut bytes = Vec::with_capacity(byte_length);
 
-    // Calling into the generator is expensive, so let's collect 64 bits of entropy at a time
-    let mut source = 0u64;
-
-    for i in 0..byte_length {
-        if i % 8 == 0 {
-            source = rng.gen();
-        }
-
-        bytes.push(source as u8);
-
-        source >>= 8;
+    for _ in 0..byte_length {
+        bytes.push(rng.gen());
     }
 
     bytes
