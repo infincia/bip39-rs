@@ -183,12 +183,6 @@ where
     }
 }
 
-/// Truncate an owned `Vec`
-pub(crate) fn truncate<T>(mut source: Vec<T>, size: usize) -> Vec<T> {
-    source.truncate(size);
-    source
-}
-
 /// Extract the first `bits` from the `source` byte
 pub(crate) fn checksum(source: u8, bits: u8) -> u8 {
     debug_assert!(bits <= 8, "Can operate on 8-bit integers only");
