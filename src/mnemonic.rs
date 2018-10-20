@@ -1,4 +1,4 @@
-use util::{truncate, checksum, IterJoinExt, BitWriter, IterBitsExt, Bits11};
+use util::{truncate, checksum, IterExt, BitWriter};
 use crypto::{gen_random_bytes, sha256_first_byte};
 use error::{ErrorKind, Result};
 use mnemonic_type::MnemonicType;
@@ -102,10 +102,9 @@ impl Mnemonic {
         // Given the entropy is of correct size, this ought to give us the correct word
         // count.
         let phrase = entropy.iter()
-                            .cloned()
-                            .chain(Some(checksum_byte))
-                            .bits(Bits11)
-                            .map(|n| wordlist[n as usize])
+                            .chain(Some(&checksum_byte))
+                            .bits()
+                            .map(|bits| wordlist.get_word(bits))
                             .join(" ");
 
         Mnemonic {
@@ -181,15 +180,11 @@ impl Mnemonic {
         let wordmap = lang.wordmap();
 
         // Preallocate enough space for the longest possible word list
-        let mut to_validate = BitWriter::with_capacity(264, Bits11);
+        let mut to_validate = BitWriter::with_capacity(264);
         let mut word_count = 0;
 
         for word in phrase.split(" ") {
-            let bits = wordmap.get_bits(&word)?;
-
-            debug_assert!(bits >> 11 == 0);
-
-            to_validate.push(bits);
+            to_validate.push(wordmap.get_bits(&word)?);
             word_count += 1;
         }
 

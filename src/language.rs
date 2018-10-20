@@ -1,12 +1,17 @@
 use rustc_hash::FxHashMap;
 use error::{ErrorKind, Result};
+use util::{Bits11, Bits};
 
 pub struct WordMap {
-    inner: FxHashMap<&'static str, u16>
+    inner: FxHashMap<&'static str, Bits11>
+}
+
+pub struct WordList {
+    inner: Vec<&'static str>
 }
 
 impl WordMap {
-    pub fn get_bits(&self, word: &str) -> Result<u16> {
+    pub fn get_bits(&self, word: &str) -> Result<Bits11> {
         match self.inner.get(word) {
             Some(n) => Ok(*n),
             None => bail!(ErrorKind::InvalidWord)
@@ -14,23 +19,32 @@ impl WordMap {
     }
 }
 
+impl WordList {
+    pub fn get_word(&self, bits: Bits11) -> &'static str {
+        self.inner[bits.bits() as usize]
+    }
+}
+
 mod lazy {
-    use super::WordMap;
+    use super::{Bits11, WordList, WordMap};
 
     /// lazy generation of the word list
-    fn gen_wordlist(lang_words: &str) -> Vec<&str> {
-        let wordlist: Vec<_> = lang_words.split_whitespace().collect();
+    fn gen_wordlist(lang_words: &'static str) -> WordList {
+        let inner: Vec<_> = lang_words.split_whitespace().collect();
 
-        debug_assert!(wordlist.len() == 2048, "Invalid wordlist length");
+        debug_assert!(inner.len() == 2048, "Invalid wordlist length");
 
-        wordlist
+        WordList {
+            inner
+        }
     }
 
     /// lazy generation of the word map
-    fn gen_wordmap(wordlist: &[&'static str]) -> WordMap {
-        let inner = wordlist.iter()
+    fn gen_wordmap(wordlist: &WordList) -> WordMap {
+        let inner = wordlist.inner
+                            .iter()
                             .enumerate()
-                            .map(|(i, item)| (*item, i as u16))
+                            .map(|(i, item)| (*item, Bits11::from(i as u16)))
                             .collect();
 
         WordMap {
@@ -39,14 +53,14 @@ mod lazy {
     }
 
     lazy_static! {
-        pub static ref WORDLIST_ENGLISH: Vec<&'static str> = gen_wordlist(include_str!("langs/english.txt"));
-        pub static ref WORDLIST_CHINESE_SIMPLIFIED: Vec<&'static str> = gen_wordlist(include_str!("langs/chinese_simplified.txt"));
-        pub static ref WORDLIST_CHINESE_TRADITIONAL: Vec<&'static str> = gen_wordlist(include_str!("langs/chinese_traditional.txt"));
-        pub static ref WORDLIST_FRENCH: Vec<&'static str> = gen_wordlist(include_str!("langs/french.txt"));
-        pub static ref WORDLIST_ITALIAN: Vec<&'static str> = gen_wordlist(include_str!("langs/italian.txt"));
-        pub static ref WORDLIST_JAPANESE: Vec<&'static str> = gen_wordlist(include_str!("langs/japanese.txt"));
-        pub static ref WORDLIST_KOREAN: Vec<&'static str> = gen_wordlist(include_str!("langs/korean.txt"));
-        pub static ref WORDLIST_SPANISH: Vec<&'static str> = gen_wordlist(include_str!("langs/spanish.txt"));
+        pub static ref WORDLIST_ENGLISH: WordList = gen_wordlist(include_str!("langs/english.txt"));
+        pub static ref WORDLIST_CHINESE_SIMPLIFIED: WordList = gen_wordlist(include_str!("langs/chinese_simplified.txt"));
+        pub static ref WORDLIST_CHINESE_TRADITIONAL: WordList = gen_wordlist(include_str!("langs/chinese_traditional.txt"));
+        pub static ref WORDLIST_FRENCH: WordList = gen_wordlist(include_str!("langs/french.txt"));
+        pub static ref WORDLIST_ITALIAN: WordList = gen_wordlist(include_str!("langs/italian.txt"));
+        pub static ref WORDLIST_JAPANESE: WordList = gen_wordlist(include_str!("langs/japanese.txt"));
+        pub static ref WORDLIST_KOREAN: WordList = gen_wordlist(include_str!("langs/korean.txt"));
+        pub static ref WORDLIST_SPANISH: WordList = gen_wordlist(include_str!("langs/spanish.txt"));
 
         pub static ref WORDMAP_ENGLISH: WordMap = gen_wordmap(&WORDLIST_ENGLISH);
         pub static ref WORDMAP_CHINESE_SIMPLIFIED: WordMap = gen_wordmap(&WORDLIST_CHINESE_SIMPLIFIED);
@@ -81,7 +95,7 @@ pub enum Language {
 
 impl Language {
     /// Get the word list for this language
-    pub fn wordlist(&self) -> &'static [&'static str] {
+    pub fn wordlist(&self) -> &'static WordList {
         match *self {
             Language::English => &lazy::WORDLIST_ENGLISH,
             Language::ChineseSimplified => &lazy::WORDLIST_CHINESE_SIMPLIFIED,
