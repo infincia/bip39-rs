@@ -17,7 +17,10 @@ path = "src/lib.rs"
 
 [dependencies]
 error-chain = "0.12.0"
-rustc-hash = "1.0.1"
-ring = "^0.13"
-rand = "0.5.5"
-lazy_static = "^1.1.0"
+# Note: hashbrown is going to be merged into Rust std
+hashbrown = "0.1.7"
+sha2 = "0.8.0"
+hmac = "0.7.0"
+pbkdf2 = { version = "0.3.0", features=["parallel"], default-features = false }
+rand = "0.6.1"
+once_cell = { version = "0.1.6", features = [ "parking_lot" ] }

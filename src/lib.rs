@@ -28,9 +28,11 @@
 //! ```
 //!
 #[macro_use] extern crate error_chain;
-#[macro_use] extern crate lazy_static;
-extern crate ring;
-extern crate rustc_hash;
+#[macro_use] extern crate once_cell;
+extern crate pbkdf2;
+extern crate hashbrown;
+extern crate sha2;
+extern crate hmac;
 
 mod mnemonic;
 mod error;
