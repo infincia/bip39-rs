@@ -1,5 +1,6 @@
 use hashbrown::HashMap;
-use error::{ErrorKind, Result};
+use error::ErrorKind;
+use failure::Error;
 use util::{Bits11, Bits};
 
 pub struct WordMap {
@@ -12,10 +13,10 @@ pub struct WordList {
 }
 
 impl WordMap {
-    pub fn get_bits(&self, word: &str) -> Result<Bits11> {
+    pub fn get_bits(&self, word: &str) -> Result<Bits11, Error> {
         match self.inner.get(word) {
             Some(n) => Ok(*n),
-            None => bail!(ErrorKind::InvalidWord)
+            None => Err(ErrorKind::InvalidWord)?
         }
     }
 }

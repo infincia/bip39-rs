@@ -27,7 +27,7 @@
 //! println!("{:X}", seed);
 //! ```
 //!
-#[macro_use] extern crate error_chain;
+#[macro_use] extern crate failure;
 #[macro_use] extern crate once_cell;
 extern crate pbkdf2;
 extern crate hashbrown;
@@ -47,5 +47,4 @@ pub use language::Language;
 pub use mnemonic::Mnemonic;
 pub use mnemonic_type::MnemonicType;
 pub use seed::Seed;
-pub use error::Error;
 pub use error::ErrorKind;

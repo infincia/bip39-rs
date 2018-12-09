@@ -1,6 +1,7 @@
 use util::{checksum, IterExt, BitWriter};
 use crypto::{gen_random_bytes, sha256_first_byte};
-use error::{ErrorKind, Result};
+use error::ErrorKind;
+use failure::Error;
 use mnemonic_type::MnemonicType;
 use language::Language;
 use std::fmt;
@@ -76,7 +77,7 @@ impl Mnemonic {
     /// ```
     ///
     /// [Mnemonic]: ../mnemonic/struct.Mnemonic.html
-    pub fn from_entropy(entropy: &[u8], lang: Language) -> Result<Mnemonic> {
+    pub fn from_entropy(entropy: &[u8], lang: Language) -> Result<Mnemonic, Error> {
         // Validate entropy size
         MnemonicType::for_key_size(entropy.len() * 8)?;
 
@@ -131,7 +132,7 @@ impl Mnemonic {
     /// ```
     ///
     /// [Mnemonic]: ../mnemonic/struct.Mnemonic.html
-    pub fn from_phrase<S>(phrase: S, lang: Language) -> Result<Mnemonic>
+    pub fn from_phrase<S>(phrase: S, lang: Language) -> Result<Mnemonic, Error>
     where
         S: Into<String>,
     {
@@ -165,7 +166,7 @@ impl Mnemonic {
     ///
     /// assert!(Mnemonic::validate(test_mnemonic, Language::English).is_ok());
     /// ```
-    pub fn validate(phrase: &str, lang: Language) -> Result<()> {
+    pub fn validate(phrase: &str, lang: Language) -> Result<(), Error> {
         Mnemonic::phrase_to_entropy(phrase, lang)?;
 
         Ok(())
@@ -176,7 +177,7 @@ impl Mnemonic {
     /// Only intended for internal use, as returning a `Vec<u8>` that looks a bit like it could be
     /// used as the seed is likely to cause problems for someone eventually. All the other functions
     /// that return something like that are explicit about what it is and what to use it for.
-    fn phrase_to_entropy(phrase: &str, lang: Language) -> Result<Vec<u8>> {
+    fn phrase_to_entropy(phrase: &str, lang: Language) -> Result<Vec<u8>, Error> {
         let wordmap = lang.wordmap();
 
         // Preallocate enough space for the longest possible word list
@@ -202,7 +203,7 @@ impl Mnemonic {
         let expected_checksum = checksum(checksum_byte, mtype.checksum_bits());
 
         if actual_checksum != expected_checksum {
-            bail!(ErrorKind::InvalidChecksum);
+            Err(ErrorKind::InvalidChecksum)?;
         }
 
         Ok(entropy)

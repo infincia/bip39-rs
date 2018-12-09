@@ -1,4 +1,5 @@
-use error::{ErrorKind, Result};
+use error::ErrorKind;
+use failure::Error;
 use std::fmt;
 
 const ENTROPY_OFFSET: usize = 8;
@@ -50,14 +51,14 @@ impl MnemonicType {
     ///
     /// let mnemonic_type = MnemonicType::for_word_count(12).unwrap();
     /// ```
-    pub fn for_word_count(size: usize) -> Result<MnemonicType> {
+    pub fn for_word_count(size: usize) -> Result<MnemonicType, Error> {
         let mnemonic_type = match size {
             12 => MnemonicType::Words12,
             15 => MnemonicType::Words15,
             18 => MnemonicType::Words18,
             21 => MnemonicType::Words21,
             24 => MnemonicType::Words24,
-            _ => bail!(ErrorKind::InvalidWordLength)
+            _ => Err(ErrorKind::InvalidWordLength(size))?
         };
 
         Ok(mnemonic_type)
@@ -74,14 +75,14 @@ impl MnemonicType {
     ///
     /// let mnemonic_type = MnemonicType::for_key_size(128).unwrap();
     /// ```
-    pub fn for_key_size(size: usize) -> Result<MnemonicType> {
+    pub fn for_key_size(size: usize) -> Result<MnemonicType, Error> {
         let mnemonic_type = match size {
             128 => MnemonicType::Words12,
             160 => MnemonicType::Words15,
             192 => MnemonicType::Words18,
             224 => MnemonicType::Words21,
             256 => MnemonicType::Words24,
-            _ => bail!(ErrorKind::InvalidKeysize)
+            _ => Err(ErrorKind::InvalidKeysize(size))?
         };
 
         Ok(mnemonic_type)
@@ -108,7 +109,7 @@ impl MnemonicType {
     /// ```
     ///
     /// [MnemonicType::entropy_bits()]: ./enum.MnemonicType.html#method.entropy_bits
-    pub fn for_phrase(phrase: &str) -> Result<MnemonicType> {
+    pub fn for_phrase(phrase: &str) -> Result<MnemonicType, Error> {
         let word_count = phrase.split(" ").count();
 
         Self::for_word_count(word_count)
