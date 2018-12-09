@@ -104,7 +104,7 @@ impl Language {
             Language::Italian => &lazy::WORDLIST_ITALIAN,
             Language::Japanese => &lazy::WORDLIST_JAPANESE,
             Language::Korean => &lazy::WORDLIST_KOREAN,
-            Language::Spanish => &lazy::WORDLIST_KOREAN,
+            Language::Spanish => &lazy::WORDLIST_SPANISH,
         }
     }
 
@@ -121,7 +121,7 @@ impl Language {
             Language::Italian => &lazy::WORDMAP_ITALIAN,
             Language::Japanese => &lazy::WORDMAP_JAPANESE,
             Language::Korean => &lazy::WORDMAP_KOREAN,
-            Language::Spanish => &lazy::WORDMAP_KOREAN,
+            Language::Spanish => &lazy::WORDMAP_SPANISH,
         }
     }
 }
