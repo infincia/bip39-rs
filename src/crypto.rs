@@ -7,7 +7,7 @@
 
 extern crate rand;
 use self::rand::{thread_rng, Rng};
-use sha2::{Sha256, Digest};
+use sha2::{Digest};
 use hmac::Hmac;
 
 const PBKDF2_ROUNDS: usize = 2048;
