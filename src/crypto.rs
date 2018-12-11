@@ -23,13 +23,8 @@ pub(crate) fn sha256_first_byte(input: &[u8]) -> u8 {
 ///
 pub(crate) fn gen_random_bytes(byte_length: usize) -> Vec<u8> {
     let mut rng = thread_rng();
-    let mut bytes = Vec::with_capacity(byte_length);
 
-    for _ in 0..byte_length {
-        bytes.push(rng.gen());
-    }
-
-    bytes
+    vec![rng.gen(); byte_length]
 }
 
 /// PBKDF2 helper, used to generate [`Seed`][Seed] from [`Mnemonic`][Mnemonic]
@@ -40,7 +35,7 @@ pub(crate) fn gen_random_bytes(byte_length: usize) -> Vec<u8> {
 pub(crate) fn pbkdf2(input: &[u8], salt: &str) -> Vec<u8> {
     let mut seed = vec![0u8; PBKDF2_BYTES];
 
-    pbkdf2::pbkdf2::<Hmac<sha2::Sha256>>(input, salt.as_bytes(), PBKDF2_ROUNDS, &mut seed);
+    pbkdf2::pbkdf2::<Hmac<sha2::Sha512>>(input, salt.as_bytes(), PBKDF2_ROUNDS, &mut seed);
 
     seed
 }
