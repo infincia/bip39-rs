@@ -6,7 +6,7 @@
 //!
 
 extern crate rand;
-use self::rand::{thread_rng, Rng};
+use self::rand::{ thread_rng, RngCore };
 use sha2::Digest;
 use hmac::Hmac;
 
@@ -23,10 +23,12 @@ pub(crate) fn sha256_first_byte(input: &[u8]) -> u8 {
 ///
 pub(crate) fn gen_random_bytes(byte_length: usize) -> Vec<u8> {
     let mut rng = thread_rng();
+    let mut bytes = vec![0u8; byte_length];
 
-    vec![rng.gen(); byte_length]
+    rng.fill_bytes(&mut bytes);
+
+    bytes
 }
-
 /// PBKDF2 helper, used to generate [`Seed`][Seed] from [`Mnemonic`][Mnemonic]
 ///
 /// [Mnemonic]: ../mnemonic/struct.Mnemonic.html
