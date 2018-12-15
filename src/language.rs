@@ -56,21 +56,35 @@ mod lazy {
     }
 
     pub static WORDLIST_ENGLISH: Lazy<WordList> = sync_lazy!{ gen_wordlist(include_str!("langs/english.txt")) };
+    #[cfg(feature = "chinese-simplified")]
     pub static WORDLIST_CHINESE_SIMPLIFIED: Lazy<WordList> = sync_lazy!{ gen_wordlist(include_str!("langs/chinese_simplified.txt")) };
+    #[cfg(feature = "chinese-traditional")]
     pub static WORDLIST_CHINESE_TRADITIONAL: Lazy<WordList> = sync_lazy!{ gen_wordlist(include_str!("langs/chinese_traditional.txt")) };
+    #[cfg(feature = "french")]
     pub static WORDLIST_FRENCH: Lazy<WordList> = sync_lazy!{ gen_wordlist(include_str!("langs/french.txt")) };
+    #[cfg(feature = "italian")]
     pub static WORDLIST_ITALIAN: Lazy<WordList> = sync_lazy!{ gen_wordlist(include_str!("langs/italian.txt")) };
+    #[cfg(feature = "japanese")]
     pub static WORDLIST_JAPANESE: Lazy<WordList> = sync_lazy!{ gen_wordlist(include_str!("langs/japanese.txt")) };
+    #[cfg(feature = "korean")]
     pub static WORDLIST_KOREAN: Lazy<WordList> = sync_lazy!{ gen_wordlist(include_str!("langs/korean.txt")) };
+    #[cfg(feature = "spanish")]
     pub static WORDLIST_SPANISH: Lazy<WordList> = sync_lazy!{ gen_wordlist(include_str!("langs/spanish.txt")) };
 
     pub static WORDMAP_ENGLISH: Lazy<WordMap> = sync_lazy!{ gen_wordmap(&WORDLIST_ENGLISH) };
+    #[cfg(feature = "chinese-simplified")]
     pub static WORDMAP_CHINESE_SIMPLIFIED: Lazy<WordMap> = sync_lazy!{  gen_wordmap(&WORDLIST_CHINESE_SIMPLIFIED) };
+    #[cfg(feature = "chinese-traditional")]
     pub static WORDMAP_CHINESE_TRADITIONAL: Lazy<WordMap> = sync_lazy!{ gen_wordmap(&WORDLIST_CHINESE_TRADITIONAL) };
+    #[cfg(feature = "french")]
     pub static WORDMAP_FRENCH: Lazy<WordMap> = sync_lazy!{ gen_wordmap(&WORDLIST_FRENCH) };
+    #[cfg(feature = "italian")]
     pub static WORDMAP_ITALIAN: Lazy<WordMap> = sync_lazy!{ gen_wordmap(&WORDLIST_ITALIAN) };
+    #[cfg(feature = "japanese")]
     pub static WORDMAP_JAPANESE: Lazy<WordMap> = sync_lazy!{ gen_wordmap(&WORDLIST_JAPANESE) };
+    #[cfg(feature = "korean")]
     pub static WORDMAP_KOREAN: Lazy<WordMap> = sync_lazy!{ gen_wordmap(&WORDLIST_KOREAN) };
+    #[cfg(feature = "spanish")]
     pub static WORDMAP_SPANISH: Lazy<WordMap> = sync_lazy!{ gen_wordmap(&WORDLIST_SPANISH) };
 
 }
@@ -86,12 +100,19 @@ mod lazy {
 #[derive(Debug, Clone, Copy)]
 pub enum Language {
     English,
+    #[cfg(feature = "chinese-simplified")]
     ChineseSimplified,
+    #[cfg(feature = "chinese-traditional")]
     ChineseTraditional,
+    #[cfg(feature = "french")]
     French,
+    #[cfg(feature = "italian")]
     Italian,
+    #[cfg(feature = "japanese")]
     Japanese,
+    #[cfg(feature = "korean")]
     Korean,
+    #[cfg(feature = "spanish")]
     Spanish,
 }
 
@@ -100,12 +121,19 @@ impl Language {
     pub fn wordlist(&self) -> &'static WordList {
         match *self {
             Language::English => &lazy::WORDLIST_ENGLISH,
+            #[cfg(feature = "chinese-simplified")]
             Language::ChineseSimplified => &lazy::WORDLIST_CHINESE_SIMPLIFIED,
+            #[cfg(feature = "chinese-traditional")]
             Language::ChineseTraditional => &lazy::WORDLIST_CHINESE_TRADITIONAL,
+            #[cfg(feature = "french")]
             Language::French => &lazy::WORDLIST_FRENCH,
+            #[cfg(feature = "italian")]
             Language::Italian => &lazy::WORDLIST_ITALIAN,
+            #[cfg(feature = "japanese")]
             Language::Japanese => &lazy::WORDLIST_JAPANESE,
+            #[cfg(feature = "korean")]
             Language::Korean => &lazy::WORDLIST_KOREAN,
+            #[cfg(feature = "spanish")]
             Language::Spanish => &lazy::WORDLIST_SPANISH,
         }
     }
@@ -117,12 +145,19 @@ impl Language {
     pub fn wordmap(&self) -> &'static WordMap {
         match *self {
             Language::English => &lazy::WORDMAP_ENGLISH,
+            #[cfg(feature = "chinese-simplified")]
             Language::ChineseSimplified => &lazy::WORDMAP_CHINESE_SIMPLIFIED,
+            #[cfg(feature = "chinese-traditional")]
             Language::ChineseTraditional => &lazy::WORDMAP_CHINESE_TRADITIONAL,
+            #[cfg(feature = "french")]
             Language::French => &lazy::WORDMAP_FRENCH,
+            #[cfg(feature = "italian")]
             Language::Italian => &lazy::WORDMAP_ITALIAN,
+            #[cfg(feature = "japanese")]
             Language::Japanese => &lazy::WORDMAP_JAPANESE,
+            #[cfg(feature = "korean")]
             Language::Korean => &lazy::WORDMAP_KOREAN,
+            #[cfg(feature = "spanish")]
             Language::Spanish => &lazy::WORDMAP_SPANISH,
         }
     }
