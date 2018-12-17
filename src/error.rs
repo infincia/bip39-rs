@@ -1,35 +1,15 @@
 use mnemonic_type::MnemonicType;
 
-error_chain! {
-    foreign_links {
-        EntropyUnavailable(::std::io::Error);
-        DataDecode(::data_encoding::DecodeError);
-    }
-
-    errors {
-        InvalidChecksum {
-            description("invalid checksum")
-            display("Invalid checksum")
-        }
-        InvalidWord {
-            description("invalid word in phrase")
-            display("Invalid word in phrase")
-        }
-        InvalidKeysize {
-            description("invalid keysize")
-            display("Invalid keysize")
-        }
-        InvalidWordLength {
-            description("invalid number of words in phrase")
-            display("Invalid number of words in phrase")
-        }
-        InvalidEntropyLength(entropy_length_bits: usize, mnemonic_type: MnemonicType) {
-            description("invalid entropy length for mnemonic type")
-            display("Invalid entropy length {}bits for mnemonic type {}", entropy_length_bits, mnemonic_type)
-        }
-        LanguageUnavailable {
-            description("wrapping key failed")
-            display("Language unavailable")
-        }
-    }
+#[derive(Debug, Fail)]
+pub enum ErrorKind {
+	#[fail(display = "invalid checksum")]
+	InvalidChecksum,
+	#[fail(display = "invalid word in phrase")]
+	InvalidWord,
+	#[fail(display = "invalid keysize: {}", _0)]
+	InvalidKeysize(usize),
+	#[fail(display = "invalid number of words in phrase: {}", _0)]
+	InvalidWordLength(usize),
+	#[fail(display = "invalid entropy length {}bits for mnemonic type {:?}", _0, _1)]
+	InvalidEntropyLength(usize, MnemonicType),
 }

@@ -1,5 +1,8 @@
-use ::error::{Error, ErrorKind};
+use error::ErrorKind;
+use failure::Error;
 use std::fmt;
+
+const ENTROPY_OFFSET: usize = 8;
 
 /// Determines the number of words that will be present in a [`Mnemonic`][Mnemonic] phrase
 ///
@@ -11,7 +14,7 @@ use std::fmt;
 /// while a 24 word mnemonic phrase is essentially a 256-bit key.
 ///
 /// If you know you want a specific phrase length, you can use the enum variant directly, for example
-/// `MnemonicType::Type12Words`.
+/// `MnemonicType::Words12`.
 ///
 /// You can also get a `MnemonicType` that corresponds to one of the standard BIP39 key sizes by
 /// passing arbitrary `usize` values:
@@ -20,7 +23,6 @@ use std::fmt;
 /// use bip39::{MnemonicType};
 ///
 /// let mnemonic_type = MnemonicType::for_key_size(128).unwrap();
-///
 /// ```
 ///
 /// [MnemonicType]: ../mnemonic_type/struct.MnemonicType.html
@@ -29,11 +31,12 @@ use std::fmt;
 ///
 #[derive(Debug, Copy, Clone)]
 pub enum MnemonicType {
-    Type12Words,
-    Type15Words,
-    Type18Words,
-    Type21Words,
-    Type24Words
+    //  ... = (entropy_bits << ...)   | checksum_bits
+    Words12 = (128 << ENTROPY_OFFSET) | 4,
+    Words15 = (160 << ENTROPY_OFFSET) | 5,
+    Words18 = (192 << ENTROPY_OFFSET) | 6,
+    Words21 = (224 << ENTROPY_OFFSET) | 7,
+    Words24 = (256 << ENTROPY_OFFSET) | 8,
 }
 
 impl MnemonicType {
@@ -49,14 +52,13 @@ impl MnemonicType {
     /// let mnemonic_type = MnemonicType::for_word_count(12).unwrap();
     /// ```
     pub fn for_word_count(size: usize) -> Result<MnemonicType, Error> {
-
         let mnemonic_type = match size {
-            12 => MnemonicType::Type12Words,
-            15 => MnemonicType::Type15Words,
-            18 => MnemonicType::Type18Words,
-            21 => MnemonicType::Type21Words,
-            24 => MnemonicType::Type24Words,
-            _ => { return Err(ErrorKind::InvalidWordLength.into()) }
+            12 => MnemonicType::Words12,
+            15 => MnemonicType::Words15,
+            18 => MnemonicType::Words18,
+            21 => MnemonicType::Words21,
+            24 => MnemonicType::Words24,
+            _ => Err(ErrorKind::InvalidWordLength(size))?
         };
 
         Ok(mnemonic_type)
@@ -74,14 +76,13 @@ impl MnemonicType {
     /// let mnemonic_type = MnemonicType::for_key_size(128).unwrap();
     /// ```
     pub fn for_key_size(size: usize) -> Result<MnemonicType, Error> {
-
         let mnemonic_type = match size {
-            128 => MnemonicType::Type12Words,
-            160 => MnemonicType::Type15Words,
-            192 => MnemonicType::Type18Words,
-            224 => MnemonicType::Type21Words,
-            256 => MnemonicType::Type24Words,
-            _ => { return Err(ErrorKind::InvalidKeysize.into()) }
+            128 => MnemonicType::Words12,
+            160 => MnemonicType::Words15,
+            192 => MnemonicType::Words18,
+            224 => MnemonicType::Words21,
+            256 => MnemonicType::Words24,
+            _ => Err(ErrorKind::InvalidKeysize(size))?
         };
 
         Ok(mnemonic_type)
@@ -107,23 +108,11 @@ impl MnemonicType {
     /// let entropy_bits = mnemonic_type.entropy_bits();
     /// ```
     ///
-    /// [MnemonicType::entropy_bits()]: ../mnemonic_type/struct.MnemonicType.html#method.entropy_bits
-    pub fn for_phrase<S>(phrase: S) -> Result<MnemonicType, Error> where S: Into<String> {
+    /// [MnemonicType::entropy_bits()]: ./enum.MnemonicType.html#method.entropy_bits
+    pub fn for_phrase(phrase: &str) -> Result<MnemonicType, Error> {
+        let word_count = phrase.split(" ").count();
 
-        let m = phrase.into();
-
-        let v: Vec<&str> = m.split(" ").into_iter().collect();
-
-        let mnemonic_type = match v.len() {
-            12 => MnemonicType::Type12Words,
-            15 => MnemonicType::Type15Words,
-            18 => MnemonicType::Type18Words,
-            21 => MnemonicType::Type21Words,
-            24 => MnemonicType::Type24Words,
-            _ => { return Err(ErrorKind::InvalidWordLength.into()) }
-        };
-
-        Ok(mnemonic_type)
+        Self::for_word_count(word_count)
     }
 
     /// Return the number of entropy+checksum bits
@@ -140,16 +129,7 @@ impl MnemonicType {
     /// let total_bits = mnemonic_type.total_bits();
     /// ```
     pub fn total_bits(&self) -> usize {
-
-        let total_bits: usize = match *self {
-            MnemonicType::Type12Words => 132,
-            MnemonicType::Type15Words => 165,
-            MnemonicType::Type18Words => 198,
-            MnemonicType::Type21Words => 231,
-            MnemonicType::Type24Words => 264
-        };
-
-        total_bits
+        self.entropy_bits() + self.checksum_bits() as usize
     }
 
     /// Return the number of entropy bits
@@ -166,16 +146,7 @@ impl MnemonicType {
     /// let entropy_bits = mnemonic_type.entropy_bits();
     /// ```
     pub fn entropy_bits(&self) -> usize {
-
-        let entropy_bits: usize = match *self {
-            MnemonicType::Type12Words => 128,
-            MnemonicType::Type15Words => 160,
-            MnemonicType::Type18Words => 192,
-            MnemonicType::Type21Words => 224,
-            MnemonicType::Type24Words => 256
-        };
-
-        entropy_bits
+        (*self as usize) >> ENTROPY_OFFSET
     }
 
     /// Return the number of checksum bits
@@ -191,17 +162,8 @@ impl MnemonicType {
     ///
     /// let checksum_bits = mnemonic_type.checksum_bits();
     /// ```
-    pub fn checksum_bits(&self) -> usize {
-
-        let checksum_bits: usize = match *self {
-            MnemonicType::Type12Words => 4,
-            MnemonicType::Type15Words => 5,
-            MnemonicType::Type18Words => 6,
-            MnemonicType::Type21Words => 7,
-            MnemonicType::Type24Words => 8
-        };
-
-        checksum_bits
+    pub fn checksum_bits(&self) -> u8 {
+        (*self as usize) as u8
     }
 
     /// Return the number of words
@@ -211,32 +173,55 @@ impl MnemonicType {
     /// ```
     /// use bip39::{MnemonicType};
     ///
-    /// let mnemonic_type = MnemonicType::Type12Words;
+    /// let mnemonic_type = MnemonicType::Words12;
     ///
     /// let word_count = mnemonic_type.word_count();
     /// ```
     pub fn word_count(&self) -> usize {
-
-        let word_count: usize = match *self {
-            MnemonicType::Type12Words => 12,
-            MnemonicType::Type15Words => 15,
-            MnemonicType::Type18Words => 18,
-            MnemonicType::Type21Words => 21,
-            MnemonicType::Type24Words => 24
-        };
-
-        word_count
+        self.total_bits() / 11
     }
 }
 
 impl Default for MnemonicType {
     fn default() -> MnemonicType {
-        MnemonicType::Type12Words
+        MnemonicType::Words12
     }
 }
 
 impl fmt::Display for MnemonicType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{} words ({}bits)", self.word_count(), self.entropy_bits())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn word_count() {
+        assert_eq!(MnemonicType::Words12.word_count(), 12);
+        assert_eq!(MnemonicType::Words15.word_count(), 15);
+        assert_eq!(MnemonicType::Words18.word_count(), 18);
+        assert_eq!(MnemonicType::Words21.word_count(), 21);
+        assert_eq!(MnemonicType::Words24.word_count(), 24);
+    }
+
+    #[test]
+    fn entropy_bits() {
+        assert_eq!(MnemonicType::Words12.entropy_bits(), 128);
+        assert_eq!(MnemonicType::Words15.entropy_bits(), 160);
+        assert_eq!(MnemonicType::Words18.entropy_bits(), 192);
+        assert_eq!(MnemonicType::Words21.entropy_bits(), 224);
+        assert_eq!(MnemonicType::Words24.entropy_bits(), 256);
+    }
+
+    #[test]
+    fn checksum_bits() {
+        assert_eq!(MnemonicType::Words12.checksum_bits(), 4);
+        assert_eq!(MnemonicType::Words15.checksum_bits(), 5);
+        assert_eq!(MnemonicType::Words18.checksum_bits(), 6);
+        assert_eq!(MnemonicType::Words21.checksum_bits(), 7);
+        assert_eq!(MnemonicType::Words24.checksum_bits(), 8);
     }
 }
