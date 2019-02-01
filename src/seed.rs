@@ -27,7 +27,7 @@ impl Seed {
     /// [Mnemonic]: ./mnemonic/struct.Mnemonic.html
     pub fn new(mnemonic: &Mnemonic, password: &str) -> Self {
         let salt = format!("mnemonic{}", password);
-        let bytes = pbkdf2(mnemonic.entropy(), &salt);
+        let bytes = pbkdf2(mnemonic.phrase().as_bytes(), &salt);
 
         Self {
             bytes,
