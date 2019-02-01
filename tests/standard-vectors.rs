@@ -20,7 +20,7 @@ fn test_seed(phrase: &str, password: &str, expected_seed_hex: &str) {
     let actual_seed_bytes: &[u8] = seed.as_bytes();
     let expected_seed_bytes = hex::decode(expected_seed_hex).unwrap();
 
-    assert!(actual_seed_bytes.eq(expected_seed_bytes.as_slice()), "Wrong seed for '{}'", phrase);
+    assert!(actual_seed_bytes.eq(expected_seed_bytes.as_slice()), "Wrong seed for '{}'\nexp: {:?}\nact: {:?}\n", phrase, expected_seed_hex, hex::encode(actual_seed_bytes));
 }
 
 macro_rules! tests {
