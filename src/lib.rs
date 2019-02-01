@@ -29,10 +29,10 @@
 //!
 #[macro_use] extern crate failure;
 #[macro_use] extern crate once_cell;
+extern crate pbkdf2;
 extern crate hashbrown;
 extern crate sha2;
-extern crate ring;
-extern crate rand;
+extern crate hmac;
 
 mod mnemonic;
 mod error;
