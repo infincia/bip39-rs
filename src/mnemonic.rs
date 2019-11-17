@@ -183,7 +183,7 @@ impl Mnemonic {
         // Preallocate enough space for the longest possible word list
         let mut bits = BitWriter::with_capacity(264);
 
-        for word in phrase.split(" ") {
+        for word in phrase.split(' ') {
             bits.push(wordmap.get_bits(&word)?);
         }
 
@@ -203,7 +203,7 @@ impl Mnemonic {
         let expected_checksum = checksum(checksum_byte, mtype.checksum_bits());
 
         if actual_checksum != expected_checksum {
-            Err(ErrorKind::InvalidChecksum)?;
+            return Err(ErrorKind::InvalidChecksum.into());
         }
 
         Ok(entropy)
