@@ -16,7 +16,7 @@ impl WordMap {
     pub fn get_bits(&self, word: &str) -> Result<Bits11, Error> {
         match self.inner.get(word) {
             Some(n) => Ok(*n),
-            None => Err(ErrorKind::InvalidWord)?
+            None => Err(ErrorKind::InvalidWord.into())
         }
     }
 }
@@ -118,8 +118,8 @@ pub enum Language {
 
 impl Language {
     /// Get the word list for this language
-    pub fn wordlist(&self) -> &'static WordList {
-        match *self {
+    pub fn wordlist(self) -> &'static WordList {
+        match self {
             Language::English => &lazy::WORDLIST_ENGLISH,
             #[cfg(feature = "chinese-simplified")]
             Language::ChineseSimplified => &lazy::WORDLIST_CHINESE_SIMPLIFIED,
@@ -142,8 +142,8 @@ impl Language {
     ///
     /// The index of an individual word in the word list is used as the binary value of that word
     /// when the phrase is turned into a [`Seed`][Seed].
-    pub fn wordmap(&self) -> &'static WordMap {
-        match *self {
+    pub fn wordmap(self) -> &'static WordMap {
+        match self {
             Language::English => &lazy::WORDMAP_ENGLISH,
             #[cfg(feature = "chinese-simplified")]
             Language::ChineseSimplified => &lazy::WORDMAP_CHINESE_SIMPLIFIED,
