@@ -1,10 +1,10 @@
-use util::{checksum, IterExt, BitWriter};
 use crypto::{gen_random_bytes, sha256_first_byte};
 use error::ErrorKind;
 use failure::Error;
-use mnemonic_type::MnemonicType;
 use language::Language;
+use mnemonic_type::MnemonicType;
 use std::fmt;
+use util::{checksum, BitWriter, IterExt};
 
 /// The primary type in this crate, most tasks require creating or using one.
 ///
@@ -86,7 +86,7 @@ impl Mnemonic {
 
     fn from_entropy_unchecked<E>(entropy: E, lang: Language) -> Mnemonic
     where
-        E: Into<Vec<u8>>
+        E: Into<Vec<u8>>,
     {
         let entropy = entropy.into();
         let wordlist = lang.wordlist();
@@ -102,16 +102,17 @@ impl Mnemonic {
         //
         // Given the entropy is of correct size, this ought to give us the correct word
         // count.
-        let phrase = entropy.iter()
-                            .chain(Some(&checksum_byte))
-                            .bits()
-                            .map(|bits| wordlist.get_word(bits))
-                            .join(" ");
+        let phrase = entropy
+            .iter()
+            .chain(Some(&checksum_byte))
+            .bits()
+            .map(|bits| wordlist.get_word(bits))
+            .join(" ");
 
         Mnemonic {
             phrase,
             lang,
-            entropy
+            entropy,
         }
     }
 
@@ -183,13 +184,16 @@ impl Mnemonic {
         // Preallocate enough space for the longest possible word list
         let mut bits = BitWriter::with_capacity(264);
 
-        for word in phrase.split(" ") {
+        for word in phrase.split(" ").filter(|word| !word.is_empty()) {
             bits.push(wordmap.get_bits(&word)?);
         }
 
         let mtype = MnemonicType::for_word_count(bits.len() / 11)?;
 
-        debug_assert!(bits.len() == mtype.total_bits(), "Insufficient amount of bits to validate");
+        debug_assert!(
+            bits.len() == mtype.total_bits(),
+            "Insufficient amount of bits to validate"
+        );
 
         let mut entropy = bits.into_bytes();
         let entropy_bytes = mtype.entropy_bits() / 8;
@@ -319,7 +323,10 @@ mod test {
 
     #[test]
     fn mnemonic_from_entropy() {
-        let entropy = &[0x33, 0xE4, 0x6B, 0xB1, 0x3A, 0x74, 0x6E, 0xA4, 0x1C, 0xDD, 0xE4, 0x5C, 0x90, 0x84, 0x6A, 0x79];
+        let entropy = &[
+            0x33, 0xE4, 0x6B, 0xB1, 0x3A, 0x74, 0x6E, 0xA4, 0x1C, 0xDD, 0xE4, 0x5C, 0x90, 0x84,
+            0x6A, 0x79,
+        ];
         let phrase = "crop cash unable insane eight faith inflict route frame loud box vibrant";
 
         let mnemonic = Mnemonic::from_entropy(entropy, Language::English).unwrap();
@@ -329,7 +336,10 @@ mod test {
 
     #[test]
     fn mnemonic_from_phrase() {
-        let entropy = &[0x33, 0xE4, 0x6B, 0xB1, 0x3A, 0x74, 0x6E, 0xA4, 0x1C, 0xDD, 0xE4, 0x5C, 0x90, 0x84, 0x6A, 0x79];
+        let entropy = &[
+            0x33, 0xE4, 0x6B, 0xB1, 0x3A, 0x74, 0x6E, 0xA4, 0x1C, 0xDD, 0xE4, 0x5C, 0x90, 0x84,
+            0x6A, 0x79,
+        ];
         let phrase = "crop cash unable insane eight faith inflict route frame loud box vibrant";
 
         let mnemonic = Mnemonic::from_phrase(phrase, Language::English).unwrap();
@@ -346,13 +356,28 @@ mod test {
 
     #[test]
     fn mnemonic_hex_format() {
-        let entropy = &[0x33, 0xE4, 0x6B, 0xB1, 0x3A, 0x74, 0x6E, 0xA4, 0x1C, 0xDD, 0xE4, 0x5C, 0x90, 0x84, 0x6A, 0x79];
+        let entropy = &[
+            0x33, 0xE4, 0x6B, 0xB1, 0x3A, 0x74, 0x6E, 0xA4, 0x1C, 0xDD, 0xE4, 0x5C, 0x90, 0x84,
+            0x6A, 0x79,
+        ];
 
         let mnemonic = Mnemonic::from_entropy(entropy, Language::English).unwrap();
 
-        assert_eq!(format!("{:x}", mnemonic), "33e46bb13a746ea41cdde45c90846a79");
-        assert_eq!(format!("{:X}", mnemonic), "33E46BB13A746EA41CDDE45C90846A79");
-        assert_eq!(format!("{:#x}", mnemonic), "0x33e46bb13a746ea41cdde45c90846a79");
-        assert_eq!(format!("{:#X}", mnemonic), "0x33E46BB13A746EA41CDDE45C90846A79");
+        assert_eq!(
+            format!("{:x}", mnemonic),
+            "33e46bb13a746ea41cdde45c90846a79"
+        );
+        assert_eq!(
+            format!("{:X}", mnemonic),
+            "33E46BB13A746EA41CDDE45C90846A79"
+        );
+        assert_eq!(
+            format!("{:#x}", mnemonic),
+            "0x33e46bb13a746ea41cdde45c90846a79"
+        );
+        assert_eq!(
+            format!("{:#X}", mnemonic),
+            "0x33E46BB13A746EA41CDDE45C90846A79"
+        );
     }
 }
