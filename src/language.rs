@@ -1,4 +1,4 @@
-use hashbrown::HashMap;
+use std::collections::HashMap;
 use error::ErrorKind;
 use failure::Error;
 use util::{Bits11, Bits};
