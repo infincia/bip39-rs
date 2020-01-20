@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use error::ErrorKind;
 use failure::Error;
 use util::{Bits11, Bits};
+use std::vec::Vec;
 
 pub struct WordMap {
     inner: HashMap<&'static str, Bits11>
@@ -29,7 +30,8 @@ impl WordList {
 
 mod lazy {
     use super::{Bits11, WordList, WordMap};
-    use once_cell::sync::Lazy;
+    use lazy_static::lazy_static;
+    use std::vec::Vec;
 
     /// lazy generation of the word list
     fn gen_wordlist(lang_words: &'static str) -> WordList {
@@ -55,37 +57,39 @@ mod lazy {
         }
     }
 
-    pub static WORDLIST_ENGLISH: Lazy<WordList> = sync_lazy!{ gen_wordlist(include_str!("langs/english.txt")) };
-    #[cfg(feature = "chinese-simplified")]
-    pub static WORDLIST_CHINESE_SIMPLIFIED: Lazy<WordList> = sync_lazy!{ gen_wordlist(include_str!("langs/chinese_simplified.txt")) };
-    #[cfg(feature = "chinese-traditional")]
-    pub static WORDLIST_CHINESE_TRADITIONAL: Lazy<WordList> = sync_lazy!{ gen_wordlist(include_str!("langs/chinese_traditional.txt")) };
-    #[cfg(feature = "french")]
-    pub static WORDLIST_FRENCH: Lazy<WordList> = sync_lazy!{ gen_wordlist(include_str!("langs/french.txt")) };
-    #[cfg(feature = "italian")]
-    pub static WORDLIST_ITALIAN: Lazy<WordList> = sync_lazy!{ gen_wordlist(include_str!("langs/italian.txt")) };
-    #[cfg(feature = "japanese")]
-    pub static WORDLIST_JAPANESE: Lazy<WordList> = sync_lazy!{ gen_wordlist(include_str!("langs/japanese.txt")) };
-    #[cfg(feature = "korean")]
-    pub static WORDLIST_KOREAN: Lazy<WordList> = sync_lazy!{ gen_wordlist(include_str!("langs/korean.txt")) };
-    #[cfg(feature = "spanish")]
-    pub static WORDLIST_SPANISH: Lazy<WordList> = sync_lazy!{ gen_wordlist(include_str!("langs/spanish.txt")) };
+    lazy_static! {
+        pub static ref WORDLIST_ENGLISH: WordList = { gen_wordlist(include_str!("langs/english.txt")) };
+        #[cfg(feature = "chinese-simplified")]
+        pub static ref WORDLIST_CHINESE_SIMPLIFIED: WordList = { gen_wordlist(include_str!("langs/chinese_simplified.txt")) };
+        #[cfg(feature = "chinese-traditional")]
+        pub static ref WORDLIST_CHINESE_TRADITIONAL: WordList = { gen_wordlist(include_str!("langs/chinese_traditional.txt")) };
+        #[cfg(feature = "french")]
+        pub static ref WORDLIST_FRENCH: WordList = { gen_wordlist(include_str!("langs/french.txt")) };
+        #[cfg(feature = "italian")]
+        pub static ref WORDLIST_ITALIAN: WordList = { gen_wordlist(include_str!("langs/italian.txt")) };
+        #[cfg(feature = "japanese")]
+        pub static ref WORDLIST_JAPANESE: WordList = { gen_wordlist(include_str!("langs/japanese.txt")) };
+        #[cfg(feature = "korean")]
+        pub static ref WORDLIST_KOREAN: WordList = { gen_wordlist(include_str!("langs/korean.txt")) };
+        #[cfg(feature = "spanish")]
+        pub static ref WORDLIST_SPANISH: WordList = { gen_wordlist(include_str!("langs/spanish.txt")) };
 
-    pub static WORDMAP_ENGLISH: Lazy<WordMap> = sync_lazy!{ gen_wordmap(&WORDLIST_ENGLISH) };
-    #[cfg(feature = "chinese-simplified")]
-    pub static WORDMAP_CHINESE_SIMPLIFIED: Lazy<WordMap> = sync_lazy!{  gen_wordmap(&WORDLIST_CHINESE_SIMPLIFIED) };
-    #[cfg(feature = "chinese-traditional")]
-    pub static WORDMAP_CHINESE_TRADITIONAL: Lazy<WordMap> = sync_lazy!{ gen_wordmap(&WORDLIST_CHINESE_TRADITIONAL) };
-    #[cfg(feature = "french")]
-    pub static WORDMAP_FRENCH: Lazy<WordMap> = sync_lazy!{ gen_wordmap(&WORDLIST_FRENCH) };
-    #[cfg(feature = "italian")]
-    pub static WORDMAP_ITALIAN: Lazy<WordMap> = sync_lazy!{ gen_wordmap(&WORDLIST_ITALIAN) };
-    #[cfg(feature = "japanese")]
-    pub static WORDMAP_JAPANESE: Lazy<WordMap> = sync_lazy!{ gen_wordmap(&WORDLIST_JAPANESE) };
-    #[cfg(feature = "korean")]
-    pub static WORDMAP_KOREAN: Lazy<WordMap> = sync_lazy!{ gen_wordmap(&WORDLIST_KOREAN) };
-    #[cfg(feature = "spanish")]
-    pub static WORDMAP_SPANISH: Lazy<WordMap> = sync_lazy!{ gen_wordmap(&WORDLIST_SPANISH) };
+        pub static ref WORDMAP_ENGLISH: WordMap = { gen_wordmap(&WORDLIST_ENGLISH) };
+        #[cfg(feature = "chinese-simplified")]
+        pub static ref WORDMAP_CHINESE_SIMPLIFIED: WordMap = {  gen_wordmap(&WORDLIST_CHINESE_SIMPLIFIED) };
+        #[cfg(feature = "chinese-traditional")]
+        pub static ref WORDMAP_CHINESE_TRADITIONAL: WordMap = { gen_wordmap(&WORDLIST_CHINESE_TRADITIONAL) };
+        #[cfg(feature = "french")]
+        pub static ref WORDMAP_FRENCH: WordMap = { gen_wordmap(&WORDLIST_FRENCH) };
+        #[cfg(feature = "italian")]
+        pub static ref WORDMAP_ITALIAN: WordMap = { gen_wordmap(&WORDLIST_ITALIAN) };
+        #[cfg(feature = "japanese")]
+        pub static ref WORDMAP_JAPANESE: WordMap = { gen_wordmap(&WORDLIST_JAPANESE) };
+        #[cfg(feature = "korean")]
+        pub static ref WORDMAP_KOREAN: WordMap = { gen_wordmap(&WORDLIST_KOREAN) };
+        #[cfg(feature = "spanish")]
+        pub static ref WORDMAP_SPANISH: WordMap = { gen_wordmap(&WORDLIST_SPANISH) };
+    }
 
 }
 

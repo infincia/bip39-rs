@@ -5,6 +5,8 @@ use failure::Error;
 use mnemonic_type::MnemonicType;
 use language::Language;
 use std::fmt;
+use std::vec::Vec;
+use std::string::String;
 
 /// The primary type in this crate, most tasks require creating or using one.
 ///

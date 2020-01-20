@@ -1,0 +1,20 @@
+[package]
+name = "bip39rstestenclave"
+version = "1.0.0"
+authors = ["Baidu"]
+
+[lib]
+name = "bip39rstestenclave"
+crate-type = ["staticlib"]
+
+[features]
+default = []
+
+[dependencies]
+bip39 = { path = "../../.." }
+
+[target.'cfg(not(target_env = "sgx"))'.dependencies]
+sgx_types = { rev = "v1.1.0", git = "https://github.com/apache/teaclave-sgx-sdk.git" }
+sgx_tstd = { rev = "v1.1.0", git = "https://github.com/apache/teaclave-sgx-sdk.git" }
+sgx_tunittest = {rev = "v1.1.0", git = "https://github.com/apache/teaclave-sgx-sdk.git" }
+sgx_tcrypto = {rev = "v1.1.0", git = "https://github.com/apache/teaclave-sgx-sdk.git" }

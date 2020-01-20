@@ -24,14 +24,24 @@ italian = []
 japanese = []
 korean = []
 spanish = []
+mesalock_sgx = ["sgx_tstd", "sgx_trts"]
 
-default = ["chinese-simplified", "chinese-traditional", "french", "italian", "japanese", "korean", "spanish"]
+
+default = ["chinese-simplified", "chinese-traditional", "french", "italian", "japanese", "korean", "spanish", "mesalock_sgx"]
 
 [dependencies]
-failure = "0.1.3"
-# Note: hashbrown is going to be merged into Rust std
-sha2 = "0.8.0"
-hmac = "0.7.0"
-pbkdf2 = { version = "0.3.0", features=["parallel"], default-features = false }
-rand = "0.6.1"
-once_cell = { version = "0.1.6", features = [ "parking_lot" ] }
+sgx_tstd = { rev = "v1.1.0", git = "https://github.com/apache/teaclave-sgx-sdk.git", optional = true }
+sgx_trts =  { rev = "v1.1.0", git = "https://github.com/baidu/rust-sgx-sdk.git", optional = true }
+sgx_types = { rev = "v1.1.0", git = "https://github.com/apache/teaclave-sgx-sdk.git", optional = true }
+
+#failure = "0.1.3"
+failure = { git = "https://github.com/mesalock-linux/failure-sgx.git" }
+#sha2 = "0.8.0"
+#sha2 = { git = "https://github.com/mesalock-linux/rustcrypto-hashes-sgx.git" }
+#hmac = "0.7.0"
+#hmac = { git = "https://github.com/mesalock-linux/rustcrypto-MACs-sgx.git" }
+#pbkdf2 = { version = "0.3.0", features=["parallel"], default-features = false }
+rust_crypto = { git = "https://github.com/mesalock-linux/rust-crypto-sgx.git", package="rust-crypto" }
+#rand = "0.6.1"
+rand =  { git = "https://github.com/mesalock-linux/rand-sgx.git" }
+lazy_static = { version = "1.1.0", features = ["spin_no_std"] }

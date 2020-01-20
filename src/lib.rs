@@ -27,11 +27,17 @@
 //! println!("{:X}", seed);
 //! ```
 //!
+
+#![cfg_attr(all(feature = "mesalock_sgx", not(target_env = "sgx")), no_std)]
+#![cfg_attr(all(target_env = "sgx", target_vendor = "mesalock"), feature(rustc_private))]
+
+#[cfg(all(feature = "mesalock_sgx", not(target_env = "sgx")))]
+#[macro_use]
+extern crate sgx_tstd as std;
+
 #[macro_use] extern crate failure;
-#[macro_use] extern crate once_cell;
-extern crate pbkdf2;
-extern crate sha2;
-extern crate hmac;
+extern crate lazy_static;
+extern crate rust_crypto;
 
 mod mnemonic;
 mod error;

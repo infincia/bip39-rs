@@ -1,3 +1,6 @@
+use std::vec::Vec;
+use std::string::String;
+
 pub(crate) trait IterExt: Iterator {
     fn join<R>(&mut self, glue: &str) -> R
     where

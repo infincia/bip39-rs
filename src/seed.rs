@@ -1,6 +1,7 @@
 use crypto::pbkdf2;
 use mnemonic::Mnemonic;
 use std::fmt;
+use std::vec::Vec;
 
 /// The secret value used to derive HD wallet addresses from a [`Mnemonic`][Mnemonic] phrase.
 ///
